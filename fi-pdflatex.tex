@@ -8,7 +8,7 @@
 
 \documentclass[
   digital,     %% The `digital` option enables the default options for the digital version of a document. Replace with `printed` to enable the default options for the printed version of a document.
-  color,       %% Uncomment these lines (by removing the %% at the beginning) to use color in the printed version of your document
+  color,       %% Use color in the printed version of your document
   oneside,     %% The `oneside` option enables one-sided typesetting, which is preferred if you are only going to submit a digital version of your thesis. Replace with `twoside` for double-sided typesetting if you are planning to also print your thesis. For double-sided typesetting, use at least 120 g/m² paper to prevent show-through.
   nosansbold,  %% The `nosansbold` option prevents the use of the sans-serif type face for bold text. Replace with `sansbold` to use sans-serif type face for bold text.
   nocolorbold, %% The `nocolorbold` option disables the usage of the blue color for bold text, instead using black. Replace with `colorbold` to use blue for bold text.
@@ -104,7 +104,7 @@
 %% The \chapter* command can be used to produce unnumbered chapters:
 
 \chapter{Introduction}
-The concept of molecular dynamics (MD) has been with us since the 1950s \cite{md_wikipedia}. However the rise of computational power has made it more accessible and practical. It gained a lot of interest during the COVID-19 pandemic where it played a crucial role in the development of vaccines.
+The concept of molecular dynamics (MD) has been with us since the 1950s \textit{[TODO: Replace Wikipedia citation with Alder \& Wainwright, 1959 or similar]}. However the rise of computational power has made it more accessible and practical. It gained a lot of interest during the COVID-19 pandemic where it played a crucial role in the development of vaccines.
 
 The problem current MD scientists are facing is the lack of any standardization in setting up, tuning, running and sharing these simulations. The most popular MD simulation software GROMACS only has a CLI interface so its users heavily rely on custom scripts and manual setup. The MD simulations are also computationally expensive and it is necessary to correctly select hyperparameters such as number of MPI processes or whether to use a GPU or a CPU for certain calculations. These hyperparameters are hard to guess and cost extra time and money if not configured properly. After getting the results, the researcher has to have a separate set of tools for analysis which again increases overhead. After getting through this strenuous process it is very difficult to then reuse the results due to the fact that there is no official repository for sharing molecular dynamics data and it usually relies on the user's custom shell scripts and other non-standard methodologies. This poses a barrier between individual teams and makes collaboration difficult.
 
@@ -112,7 +112,6 @@ MD Dash is a tool we created to address these challenges. It aims to provide sci
 
 During the development of MD Dash, we had the opportunity to collaborate with e-INFRA CZ, which provided us with access to their computing resources and expertise in cloud technologies. This collaboration enabled us to deploy MD Dash on their Kubernetes cluster and expose the service to the public.
 
-\pagebreak
 
 \chapter{State of the Art}
 
@@ -126,7 +125,7 @@ This chapter establishes the context for the thesis by reviewing the current lan
 
 \textit{TODO: Discuss the "reproducibility crisis". Why is it hard to reproduce someone else's simulation? (Different versions, missing parameters, unpublished scripts).}
 
-\section{Virtual Research Environments (VREs)}
+\section{Virtual Research Environments}
 
 \textit{TODO: What exists already? why is it not sufficient?}
 
@@ -134,7 +133,6 @@ This chapter establishes the context for the thesis by reviewing the current lan
 
 \textit{TODO: Brief overview of Kubernetes and JupyterHub. Why are they becoming the standard for scientific computing? (Scalability, isolation, interactive coding).}
 
-\pagebreak
 
 \chapter{Analysis and Design}
 
@@ -142,17 +140,11 @@ This chapter establishes the context for the thesis by reviewing the current lan
 
 \section{Workflow design}
 
-\textit{TODO: Propose the **solution** to the complexity described in Section 2.1.
-- Explain the decision to break the workflow into 6 distinct steps.
-- Contrast this with the unstructured "manual" approach.
-- Justify why this linear wizard approach is better for reproducibility than an open-ended terminal.}
+\textit{TODO: Propose the solution to the complexity described in Section 2.1. Explain the decision to break the workflow into 6 distinct steps and contrast this with the unstructured "manual" approach. Justify why this linear wizard approach is better for reproducibility than an open-ended terminal.}
 
 \section{Base platform}
 
-\textit{TODO: Justify the choice of technologies described in 2.4.
-- Why JupyterHub? (Interactive, familiar python environment).
-- Why Kubernetes? (Per-user isolation, resource limits).
-- Contrast with running on a shared SSH node (traditional HPC).}
+\textit{TODO: Justify the choice of technologies described in 2.4. Why JupyterHub? (Interactive, familiar python environment). Why Kubernetes? (Per-user isolation, resource limits). Contrast with running on a shared SSH node (traditional HPC).}
 
 \section{Simulation engine}
 
@@ -168,9 +160,7 @@ This chapter establishes the context for the thesis by reviewing the current lan
 
 \section{Tune}
 
-\textit{TODO: step 2 - what do we need it to do? gromacs tuner by Adam Ondrejka magically exists and perfectly fits our needs}
-\newline
-\textit{QUESTION: how in depth should we talk about the tuner to not steal Adam's work but also to give the reader a good understanding of how it works and why it is important?}
+\textit{TODO: Step 2 - Describe the integration with the "Black Box" tuner service. Focus on the integration contract: Input (system size, atoms) to Output (optimal MPI/OpenMP settings). Do not detail the internal algorithms (genetic algorithms/Ray) as that is separate work. Cite the tuner as an external microservice developed by Adam Ondrejka. Explain the business value: automation of trial-and-error optimization.}
 
 \section{Run}
 
@@ -188,11 +178,11 @@ This chapter establishes the context for the thesis by reviewing the current lan
 
 \textit{TODO: talk about concrete UI design decisions, challenges with combining 4 UIs (dashboard, JupyterHub, JupyterLab, MDRepo)}
 
-\pagebreak
 
 \chapter{Architecture and Implementation}
 
-\textit{TODO: talk about the architecture of the app, how the different components interact with each other, how we use the different technologies to implement the features of the app, how we handle authentication and authorization, how we handle file storage and sharing, how we handle the communication between the frontend and the backend, etc.}
+\textit{TODO: Overview of the system. Discuss the high-level "Multi-namespace isolation pattern" where JupyterHub orchestrates per-user environments.}
+
 
 \begin{figure}[h]
     \centering
@@ -200,43 +190,51 @@ This chapter establishes the context for the thesis by reviewing the current lan
     \caption{Architecture overview}
 \end{figure}
 
-\section{Namespaces and pods}
+\section{Tenant Isolation Strategy}
 
-\textit{TODO: admin namespace, user namespaces, how each user has his own API and database, how we use them to isolate user environments and run simulations, how we handle the resource allocation for the pods, etc.}
+\textit{TODO: Detail the Kubernetes implementation. Discuss the Admin Namespace vs. User Namespaces. Explain the Sidecar Container Pattern where the Pod is composed of JupyterHub Singleuser + Sidecars (API, Auth, Proxy). Mention Resource Quotas which are managed via Rancher project annotations (field.cattle.io/resourceQuota).}
 
-\section{JupyterHub}
+\section{JupyterHub Orchestration}
 
-\textit{TODO: talk mainly about the helm chart, values.yaml.tmpl and \\ pre\_spawn\_hook.py}
+\textit{TODO: Deep dive into the orchestration logic. Explain the Pre-Spawn Hook Pattern using pre\_spawn\_hook.py which dynamically provisions namespaces and waits for Rancher conditions. Mention values.yaml.tmpl and how it injects sidecars.}
 
-\section{API}
+\section{Dashboard API}
 
-\textit{TODO: talk about how the API ties everything together, talk about the tech stack used for the api}
+\textit{TODO: Backend implementation details. Stack: Flask, SQLAlchemy, Marshmallow. Discuss the Active Record Pattern for database models and the Repository Pattern for centralized logic. Discuss the strategy of auto-generating migrations on startup and storing them in DATA\_DIR (non-standard but robust for this K8s setup).}
 
-\section{UI}
+\section{User Interface}
 
-\textit{TODO: talk about the tech stack used for the UI, Vite built with React bundled into the proxy container as static files}
+\textit{TODO: Frontend architecture. Stack: React, Material-UI, Vite. Describe the distribution where static files are embedded in the Caddy Proxy container. Explain the Runtime Config Injection where window.MDDASH\_CONFIG is injected by Caddy (solves build-once, run-anywhere).}
 
 \section{MDRun API}
 
-\textit{TODO: talk about the MDRun API tech stack, how it interacts with the main API, how it handles the S3 file storage for the simulations}
+\textit{TODO: The simulation execution engine. Mention the Background Polling Pattern with daemon threads querying Kubernetes for job status. Discuss SQLite WAL Mode used for concurrent read/write handling during heavy I/O.}
 
 \section{Caddy Proxy}
 
-\textit{TODO: why do we need a proxy? why caddy? how it integrates with the API and UI}
+\textit{TODO: Explain the Reverse Proxy Pattern. Discuss why Caddy was chosen (websocket support, dynamic config API). efficient static file serving, and its role as an API Gateway that aggregates the backend services.}
 
-\section{Forward auth}
+\section{Security Architecture}
 
-\textit{TODO: briefly describe the purpose of fwd auth and the vulnerability it addresses}
+\textit{TODO: Authentication flow. Discuss Forward Auth using Caddy's forward\_auth directive to offload session validation. Explain Session Management with in-memory store and HMAC-signed state. Mention Component Isolation with non-root containers (UID 1000).}
 
 \section{S3 sync daemon}
 
-\textit{TODO: talk about the S3 sync daemon, how it runs as a sidecar container in the MDRun API and the MD Dash API pods, how it handles the file synchronization between the local storage and the S3 bucket live}
+\textit{TODO: Discuss the Data Synchronization Sidecar Pattern. Explain how the S3 sync daemon runs as a sidecar container inMD Dash API pod to handle bidirectional file synchronization between local storage and S3 buckets in real-time. Describe why it is not used inside MDRun API (we only need one directional sync there)}
 
-\section{DevOps and Deployment}
+\section{Development Workflow}
 
-\textit{TODO: talk about the two separate environments for development and production, how we use CI/CD pipelines to deploy the app, how we handle secrets and environment variables}
+\subsection{Unified Development Environment}
 
-\pagebreak
+\textit{TODO: Describe the custom Dev Container setup. Explain how it solves "works on my machine" issues by standardizing dependencies, VS Code extensions, and linters across the team.}
+
+\subsection{AI-Assisted Implementation}
+
+\textit{TODO: Discuss the integration of Generative AI into the workflow. Mention the creation of `AGENTS.md` and custom GitHub Copilot instructions. Explain how these files provided context and coding standards to the AI, resulting in more accurate and consistent code generation.}
+
+\section{DevOps and Configuration Management}
+
+\textit{TODO: The "Make-based Orchestration" and GitOps flow. Explain Template-Based Configuration using gomplate to render values.yaml.tmpl for Environment Parity (Dev vs. Prod). Discuss Build Pipeline with Makefile orchestration for build, test, push, deploy. Mention Image Tagging Strategy with static dev tag vs. immutable production tags.}
 
 \chapter{Application Walkthrough}
 
@@ -297,26 +295,23 @@ When creating a new experiment, the user is presented with a few options:
 
 \textit{TODO: show the interface for publishing the simulation to MDRepo, describe the initial user authorization with MDRepo}
 
-\pagebreak
 
 \chapter{Evaluation}
 
 \textit{TODO: talk about passing the app to some real users, getting feedback, improving the app based on their feedback, compare MD Dash to other similar tools and to the traditional way of running MD simulations}
 
-\pagebreak
 
 \chapter{Conclusion}
 
 \textit{TODO: current state, future work, personal insights}
 
-\pagebreak
 
-\chapter{Bibliography}
+\chapter*{Bibliography}
 
 \printbibliography[heading=none]
 
 \appendix %% Start the appendices.
-\chapter{An appendix}
+\chapter*{An appendix}
 Here you can insert the appendices of your thesis.
 
 \end{document}
