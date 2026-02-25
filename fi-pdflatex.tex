@@ -104,7 +104,8 @@
 %% The \chapter* command can be used to produce unnumbered chapters:
 
 \chapter{Introduction}
-The concept of molecular dynamics (MD) has been with us since the 1950s \textit{[TODO: Replace Wikipedia citation with Alder \& Wainwright, 1959 or similar]}. However the rise of computational power has made it more accessible and practical. It gained a lot of interest during the COVID-19 pandemic where it played a crucial role in the development of vaccines.
+
+The concept of molecular dynamics (MD) has been with us since the 1950s \cite{md_wikipedia}. However the rise of computational power has made it more accessible and practical. It gained a lot of interest during the COVID-19 pandemic where it played a crucial role in the development of vaccines.
 
 The problem current MD scientists are facing is the lack of any standardization in setting up, tuning, running and sharing these simulations. The most popular MD simulation software GROMACS only has a CLI interface so its users heavily rely on custom scripts and manual setup. The MD simulations are also computationally expensive and it is necessary to correctly select hyperparameters such as number of MPI processes or whether to use a GPU or a CPU for certain calculations. These hyperparameters are hard to guess and cost extra time and money if not configured properly. After getting the results, the researcher has to have a separate set of tools for analysis which again increases overhead. After getting through this strenuous process it is very difficult to then reuse the results due to the fact that there is no official repository for sharing molecular dynamics data and it usually relies on the user's custom shell scripts and other non-standard methodologies. This poses a barrier between individual teams and makes collaboration difficult.
 
@@ -113,26 +114,48 @@ MD Dash is a tool we created to address these challenges. It aims to provide sci
 During the development of MD Dash, we had the opportunity to collaborate with e-INFRA CZ, which provided us with access to their computing resources and expertise in cloud technologies. This collaboration enabled us to deploy MD Dash on their Kubernetes cluster and expose the service to the public.
 
 
-\chapter{State of the Art}
+\chapter{Molecular Dynamics landscape}
 
-This chapter establishes the context for the thesis by reviewing the current landscape of molecular dynamics simulations, the challenges of reproducibility, and the technologies available for building modern research environments.
+MD simulations are a powerful computational technique used to model the physical movements of atoms and molecules over time. They provide insights into the structure, dynamics, and interactions of biological macromolecules, which are crucial for drug discovery and understanding fundamental biological processes \cite{md_wikipedia}. The primary benefits of MD lie in its ability to provide atomic-level resolution, capturing details that are often inaccessible through experimental methods such as X-ray crystallography or NMR spectroscopy. By enabling the observation of rare events and the calculation of thermodynamic properties like binding free energies, MD simulations serve as a bridge between theoretical models and experimental observations. This computational approach reduces the costs and time associated with traditional wet-lab experiments by allowing researchers to pre-screen candidates and simulate complex biological environments with high precision.
 
-\section{Molecular Dynamics Simulations}
+Setting up and running MD simulations is a complex process that involves multiple steps, each with its own set of parameters and configurations. This complexity can be a barrier for researchers, especially those who are new to the field or do not have extensive computational expertise.
 
-\textit{TODO: Explain the complexity of MD. Focus on the typical "manual" lifecycle: preparation -> minimization -> equilibration -> production -> analysis. This establishes *why* a workflow tool is needed. Discuss GROMACS specifically as the engine of choice and its CLI nature.}
+\section{Typical MD Workflow}
+
+When conducting MD research, scientists typically follow this workflow: \cite{gmx_workflow}
+
+\begin{enumerate}
+    \item \textbf{Topology generation}: generating force field-compliant topology files from the initial structure, including hydrogen atom addition and force field selection.
+    \item \textbf{Box definition and solvent addition}: defining the simulation box dimensions with appropriate buffer distance and filling the box with solvent molecules.
+    \item \textbf{Ion addition}: neutralizing the system by adding counter-ions to balance the net charge, and optionally adding ions to achieve desired ionic strength.
+    \item \textbf{Energy minimization}: relaxing the system through energy minimization to remove steric clashes, inappropriate geometry, and bad contacts.
+    \item \textbf{Equilibration}: equilibrating the system in two phases: first under NVT ensemble (constant number, volume, and temperature) to stabilize temperature, then under NPT ensemble (constant number, pressure, and temperature) to stabilize pressure and density, bringing the system to proper experimental conditions.
+    \item \textbf{Production MD}: running the actual molecular dynamics simulation for data collection with position restraints released.
+    \item \textbf{Analysis}: post-processing trajectories to extract meaningful insights, including structural properties, energetics, and dynamic behavior.
+    \item \textbf{Publication}: sharing the simulation data and results with the scientific community, often through repositories or supplementary materials in publications.
+\end{enumerate}
+
+\section{MD Simulation Software}
+
+For running molecular dynamics simulations, there are several software packages available, each with its own strengths and weaknesses. GROMACS is one of the most popular \cite{gmx_trend} MD engines due to its high performance, extensive features, and active community. However, it is primarily designed as a command-line tool, which can make it less accessible to users who are not comfortable with terminal-based workflows. This often leads to reliance on custom scripts and manual setup processes, which can be error-prone and difficult to reproduce.
 
 \section{Reproducibility and Data Management}
 
-\textit{TODO: Discuss the "reproducibility crisis". Why is it hard to reproduce someone else's simulation? (Different versions, missing parameters, unpublished scripts).}
+The  \enquote{reproducibility crisis} in computational molecular science stems from several factors. Researchers lack a standardized, centralized repository for sharing molecular dynamics data. Instead, they rely on fragmented methods like personal websites or static supplementary materials. This leads to issues with data accessibility and long-term preservation. It also results in a landscape dominated by inconsistent custom solutions.
+
+Reproducing a specific simulation is often hindered by poor documentation of the environment and procedural steps. Problems include differing software versions and missing force field parameters. Reliance on unpublished \enquote{ad-hoc} shell scripts makes independent verification nearly impossible. Without a transparent record of the complete workflow, MD simulations remain difficult to replicate or build upon. These factors contribute to the broader challenges of reliability in computational research. \cite{md_reproducibility}
 
 \section{Virtual Research Environments}
 
-\textit{TODO: What exists already? why is it not sufficient?}
+To address the complexities of MD orchestration and data management, the scientific community has developed Virtual Research Environments (VREs). These comprehensive, web-based platforms provide researchers with secure access to distributed high-performance computing (HPC) tools, federated data repositories, and collaborative services. Examples include the BioExcel Center of Excellence, which provides the BioBB library for interoperable workflows \cite{hpc_approaches_for_md}, and the WeNMR project, which utilizes the DIRAC workload manager to execute millions of jobs across global grid infrastructures \cite{vre_for_biology}.
+
+Despite these advancements, several challenges remain. The \enquote{Exabyte problem} highlights the logistical difficulty of moving petabytes of raw trajectory data across networks for analysis. Consequently, modern VREs must adopt a  \enquote{data gravitation} approach, bringing analytical tools directly to the centralized data stores. Furthermore, much of the generated MD data remains \enquote{dark data} --- simulations that are effectively invisible to the community due to a lack of machine-actionable metadata and standardized annotation. Existing tools often still require significant expertise in command-line interfaces and complex scripting, maintaining a steep learning curve for experimental researchers.
 
 \section{Cloud-Native Technologies in Science}
 
-\textit{TODO: Brief overview of Kubernetes and JupyterHub. Why are they becoming the standard for scientific computing? (Scalability, isolation, interactive coding).}
+Scientific computing is increasingly adopting cloud-native technologies to address the challenges of scalability, reproducibility, and collaboration. Kubernetes has emerged as a leading platform for orchestrating containerized applications, providing features like resource management, scalability, and isolation that are essential for scientific workloads.
 
+JupyterHub provides an interactive coding environment that is familiar to many researchers, allowing them to write and execute code in a web-based interface while leveraging the underlying computational resources managed by Kubernetes. These technologies enable researchers to focus on their scientific questions rather than the complexities of managing infrastructure, making them ideal for building modern virtual research environments.
 
 \chapter{Analysis and Design}
 
