@@ -25,11 +25,11 @@
     university  = mu,
     faculty     = fi,
     type        = bc,
-    department  = Institite of Computer Science,
+    department  = Institute of Computer Science,
     author      = Bc. Filip Krása,
     gender      = m,
     advisor     = {Mgr. Adrián Rošinec},
-    title       = {Virtual Research Environment for a Molecular Dynamics Simulation Experiments},
+    title       = {Virtual Research Environment for Molecular Dynamics Simulation Experiments},
     keywords    = {Molecular Dynamics, GROMACS, Jupyter, Kubernetes, Rancher, Docker, Python, React, S3, CI/CD, OAuth, OIDC, MDRepo, InvenioRDM, e-INFRA CZ},
     declaration = {%
         I hereby declare... bla bla bla.
@@ -37,9 +37,17 @@
         \\
         I used AI for:
         \begin{itemize}
+            \item Claude Code
+            \begin{itemize}
+                \item coding
+            \end{itemize}
             \item Google Gemini
             \begin{itemize}
                 \item finding and summarizing online articles
+            \end{itemize}
+            \item Consensus.app
+            \begin{itemize}
+                \item finding related work and articles
             \end{itemize}
             \item GitHub Copilot
             \begin{itemize}
@@ -63,11 +71,9 @@
         \end{itemize}
     },
     abstract    = {%
-      Molecular dynamics simulations are essential for computational drug discovery and biological research, yet their execution remains hindered by complex parameter configuration, fragmented toolchains, and lack of standardized reproducibility practices. This thesis presents MD Dash, a virtual research environment that unifies the complete simulation workflow within a single web-based platform.
+      Molecular dynamics simulations are essential for computational drug discovery and biological research, yet their execution remains hindered by complex parameter configuration, fragmented toolchains, and lack of standardized reproducibility practices. This thesis presents MD~Dash, a virtual research environment that unifies the complete simulation workflow within a single web-based platform.
 
       The system implements a five-stage wizard interface that guides users through: (1) simulation preparation via reproducible Jupyter notebooks that capture all procedural steps; (2) automatic performance tuning that optimizes MPI process count, OpenMP threading, and GPU workload distribution through short benchmark runs; (3) production execution in the tuned configuration; (4) integrated analysis with visualization capabilities; and (5) direct publication to InvenioRDM repository with comprehensive metadata.
-
-      Deployed on e-INFRA CZ infrastructure, MD Dash addresses critical barriers in computational molecular science by automating resource optimization and enforcing provenance tracking without sacrificing workflow flexibility.
     },
     thanks      = {%
       I would like to thank XYZ for XYZ.
@@ -101,28 +107,32 @@
 \usepackage[babel]{csquotes} %% Context-sensitive quotation marks
 \usepackage{graphicx} %% For including images
 \begin{document}
-%% The \chapter* command can be used to produce unnumbered chapters:
+%% The \chapter* command can be used to produce unnumbered chapters
 
 \chapter{Introduction}
 
-The concept of molecular dynamics (MD) has been with us since the 1950s \cite{md_wikipedia}. However the rise of computational power has made it more accessible and practical. It gained a lot of interest during the COVID-19 pandemic where it played a crucial role in the development of vaccines.
+\textit{TODO: make it precise, 1. introduction to the problem, 2. goals, 3. methodologies, 4. results; target length: ~1.5 pages (~2700 characters)} \\
 
-The problem current MD scientists are facing is the lack of any standardization in setting up, tuning, running and sharing these simulations. The most popular MD simulation software GROMACS only has a CLI interface so its users heavily rely on custom scripts and manual setup. The MD simulations are also computationally expensive and it is necessary to correctly select hyperparameters such as number of MPI processes or whether to use a GPU or a CPU for certain calculations. These hyperparameters are hard to guess and cost extra time and money if not configured properly. After getting the results, the researcher has to have a separate set of tools for analysis which again increases overhead. After getting through this strenuous process it is very difficult to then reuse the results due to the fact that there is no official repository for sharing molecular dynamics data and it usually relies on the user's custom shell scripts and other non-standard methodologies. This poses a barrier between individual teams and makes collaboration difficult.
+The application of molecular dynamics (MD) has evolved significantly since its inception in the 1950s~\cite{md_for_all}. The subsequent rise of computational power has made it highly accessible and practical. Its adoption accelerated during the COVID-19 pandemic, where it played a crucial role in the development of vaccines~\cite{md_in_covid}.
 
-MD Dash is a tool we created to address these challenges. It aims to provide scientists with an efficient workflow that integrates simulation, analysis, and data management. It provides an easy to use web interface for setting up, running and analyzing molecular dynamics simulations using GROMACS. It also includes an automatic hyperparameter tuner that optimizes the simulation parameters based on the user's hardware and simulation system. To support reproducibility and data preservation, MD Dash utilizes reusable Jupyter notebooks that record all simulation steps, implements automatic metadata extraction using the Gromacs Metadump tool, and integrates directly with the InvenioRDM repository for publishing simulation results. These features ensure that simulation data is well-documented, standardized, and easily accessible for future use.
+A primary challenge current MD scientists face is the lack of standardization in setting up, tuning, running, and sharing simulations. The most popular MD simulation software, GROMACS, relies on a command-line interface, meaning users frequently depend on custom scripts and manual configuration. MD simulations are computationally expensive, necessitating the correct selection of hyperparameters, such as the number of MPI processes or the allocation of CPU and GPU resources. Determining these hyperparameters is complex, and sub-optimal configurations lead to significant computational overhead and resource inefficiency. Upon obtaining the results, researchers require separate sets of tools for analysis, further increasing workflow overhead. After completing this complex process, reusing the results is difficult due to the absence of a standardized repository for sharing molecular dynamics data; data exchange consequently relies on custom shell scripts and non-standard methodologies. This environment creates a barrier between teams and hinders collaboration.
 
-During the development of MD Dash, we had the opportunity to collaborate with e-INFRA CZ, which provided us with access to their computing resources and expertise in cloud technologies. This collaboration enabled us to deploy MD Dash on their Kubernetes cluster and expose the service to the public.
+MD~Dash is a tool created to address these challenges. It aims to provide scientists with an efficient workflow that integrates simulation, analysis, and data management. It provides an easy to use web interface for setting up, running and analyzing molecular dynamics simulations using GROMACS. It also includes an automatic hyperparameter tuner that optimizes the simulation parameters based on the user's hardware and simulation system. To support reproducibility and data preservation, MD~Dash utilizes reusable Jupyter notebooks that record all simulation steps, implements automatic metadata extraction using the Gromacs Metadump tool, and integrates directly with the InvenioRDM repository for publishing simulation results. These features ensure that simulation data is well-documented, standardized, and easily accessible for future use.
 
 
 \chapter{Molecular Dynamics landscape}
+\label{ch:md_landscape}
 
-MD simulations are a powerful computational technique used to model the physical movements of atoms and molecules over time. They provide insights into the structure, dynamics, and interactions of biological macromolecules, which are crucial for drug discovery and understanding fundamental biological processes \cite{md_wikipedia}. The primary benefits of MD lie in its ability to provide atomic-level resolution, capturing details that are often inaccessible through experimental methods such as X-ray crystallography or NMR spectroscopy. By enabling the observation of rare events and the calculation of thermodynamic properties like binding free energies, MD simulations serve as a bridge between theoretical models and experimental observations. This computational approach reduces the costs and time associated with traditional wet-lab experiments by allowing researchers to pre-screen candidates and simulate complex biological environments with high precision.
+\textit{TODO: what am I building on, what are the existing tools and methodologies that I am using, what are the gaps in the current landscape that I am trying to fill with my work?} \\
+
+MD simulations are a powerful computational technique used to model the physical movements of atoms and molecules over time. They provide insights into the structure, dynamics, and interactions of biological macromolecules, which are crucial for drug discovery and understanding fundamental biological processes~\cite{md_for_all}. The primary benefits of MD lie in its ability to provide atomic-level resolution, capturing details that are often inaccessible through experimental methods such as X-ray crystallography or NMR spectroscopy. By enabling the observation of rare events and the calculation of thermodynamic properties like binding free energies, MD simulations serve as a bridge between theoretical models and experimental observations. This computational approach reduces the costs and time associated with traditional wet-lab experiments by allowing researchers to pre-screen candidates and simulate complex biological environments with high precision.
 
 Setting up and running MD simulations is a complex process that involves multiple steps, each with its own set of parameters and configurations. This complexity can be a barrier for researchers, especially those who are new to the field or do not have extensive computational expertise.
 
 \section{Typical MD Workflow}
+\label{sec:md_workflow}
 
-When conducting MD research, scientists typically follow this workflow: \cite{gmx_workflow}
+When conducting MD research, scientists typically follow this workflow:~\cite{gmx_workflow}
 
 \begin{enumerate}
     \item \textbf{Topology generation}: generating force field-compliant topology files from the initial structure, including hydrogen atom addition and force field selection.
@@ -136,20 +146,29 @@ When conducting MD research, scientists typically follow this workflow: \cite{gm
 \end{enumerate}
 
 \section{MD Simulation Software}
+\label{sec:md_software}
 
-For running molecular dynamics simulations, there are several software packages available, each with its own strengths and weaknesses. GROMACS is one of the most popular \cite{gmx_trend} MD engines due to its high performance, extensive features, and active community. However, it is primarily designed as a command-line tool, which can make it less accessible to users who are not comfortable with terminal-based workflows. This often leads to reliance on custom scripts and manual setup processes, which can be error-prone and difficult to reproduce.
+For running molecular dynamics simulations, there are several software packages available, each with its own strengths and weaknesses. Some of the most common molecular simulation engines include GROMACS, AMBER, LAMMPS, and CHARMM~\cite{gmx_software_comparison}. While these programs are designed to perform similar tasks and evaluate the same underlying physical models, they often have different default parameters, integration schemes, and even variations in fundamental constants (such as Coulomb's constant). These differences can lead to variations in simulation results and make cross-engine reproducibility challenging if not carefully managed~\cite{gmx_software_comparison}.
+
+Historically, GROMACS has been one of the most established and widely used MD engines due to its high performance, extensive features, and active community. However, recent trends indicate that while both GROMACS and LAMMPS have seen a surge in popularity since mid-2025, LAMMPS has surpassed GROMACS in overall interest~\cite{gmx_trend}. Despite its popularity, GROMACS is primarily designed as a command-line tool, which can make it less accessible to users who are not comfortable with terminal-based workflows. This often leads to reliance on custom scripts and manual setup processes, which can be error-prone and difficult to reproduce. While LAMMPS is also fundamentally a command-line program, it benefits from a third-party GUI~\cite{lammps_tutorials_2025} that can simplify accessibility for less experienced researchers.
 
 \section{Reproducibility and Data Management}
+\label{sec:reproducibility}
 
-The  \enquote{reproducibility crisis} in computational molecular science stems from several factors. Researchers lack a standardized, centralized repository for sharing molecular dynamics data. Instead, they rely on fragmented methods like personal websites or static supplementary materials. This leads to issues with data accessibility and long-term preservation. It also results in a landscape dominated by inconsistent custom solutions.
+The \enquote{reproducibility crisis} in computational molecular science stems from several factors, primarily the lack of a standardized, centralized repository for sharing molecular dynamics data. Modern MD simulations generate massive volumes of trajectory data, creating a \enquote{data deluge}. Historically, these outputs were hoarded on local hard drives or institutional servers, often discarded after publication. Driven by Open Science mandates and the FAIR (Findable, Accessible, Interoperable, and Reusable) principles, there is now a strong demand for robust data stewardship~\cite{md_reproducibility}.
 
-Reproducing a specific simulation is often hindered by poor documentation of the environment and procedural steps. Problems include differing software versions and missing force field parameters. Reliance on unpublished \enquote{ad-hoc} shell scripts makes independent verification nearly impossible. Without a transparent record of the complete workflow, MD simulations remain difficult to replicate or build upon. These factors contribute to the broader challenges of reliability in computational research. \cite{md_reproducibility}
+In the absence of a unified global infrastructure, researchers frequently rely on generalist data repositories such as Zenodo, Figshare and Open Science Framework (OSF)~\cite{md_repo_problem}. Zenodo, in particular, is widely used and is built upon the InvenioRDM framework -- a turn-key research data management platform developed by CERN. InvenioRDM is designed to handle large-scale research data, providing long-term preservation and assigning persistent identifiers like Digital Object Identifiers (DOIs). While generalist repositories provide essential infrastructure, their agnostic nature allows the deposition of arbitrary file types without enforcing domain-specific metadata standards. This practice has led to the accumulation of \enquote{dark matter}~\cite{md_repo_problem} -- petabytes of trajectory files that lack the necessary contextual metadata (such as force field parameters, integration temperatures, or system topologies) required for independent verification or automated meta-analysis.
+
+To address the limitations of generalist platforms, the biomolecular community has developed domain-specific repositories, such as GPCRmd or MoDEL~\cite{md_repo_problem}. These specialized platforms enforce strict metadata schemas and integrate web-based visualization tools. However, this specialization introduces architectural fragmentation, as independent databases often utilize disparate ontologies and APIs, hindering cross-domain interoperability.
+
+Bridging the gap between robust generalist infrastructure and domain-specific requirements is essential for the future of MD data sharing. Platforms like MDRepo address this architectural challenge. MDRepo is built on top of the same InvenioRDM framework that powers Zenodo, inheriting its scalable architecture and persistent identifier management. However, unlike Zenodo, MDRepo is explicitly tailored for molecular dynamics, enforcing rigorous metadata schemas and standardizing trajectory formats. By integrating such a repository directly into the simulation workflow, researchers can ensure that their data is not only preserved but remains fully interpretable and reusable for future computational research.
 
 \section{Virtual Research Environments}
+\label{sec:VREs}
 
-To address the complexities of MD orchestration and data management, the scientific community has developed Virtual Research Environments (VREs). These comprehensive, web-based platforms provide researchers with secure access to distributed high-performance computing (HPC) tools, federated data repositories, and collaborative services. Examples include the BioExcel Center of Excellence, which provides the BioBB library for interoperable workflows \cite{hpc_approaches_for_md}, and the WeNMR project, which utilizes the DIRAC workload manager to execute millions of jobs across global grid infrastructures \cite{vre_for_biology}.
+To address the complexities of MD orchestration and data management, the scientific community has developed Virtual Research Environments (VREs). These comprehensive, web-based platforms provide researchers with secure access to distributed HPC tools, federated data repositories, and collaborative services. A prominent example is the BioExcel Center of Excellence and its BioExcel Building Blocks (BioBB) library~\cite{hpc_approaches_for_md}, which encapsulates complex biomolecular simulation tools into interoperable Python wrappers distributed as Jupyter Notebooks -- allowing researchers to execute, document, and share entire simulation pipelines within a single readable document. Another example is the WeNMR project, which utilizes the DIRAC workload manager to execute millions of jobs across global grid infrastructures~\cite{vre_for_biology}.
 
-Despite these advancements, several challenges remain. The \enquote{Exabyte problem} highlights the logistical difficulty of moving petabytes of raw trajectory data across networks for analysis. Consequently, modern VREs must adopt a  \enquote{data gravitation} approach, bringing analytical tools directly to the centralized data stores. Furthermore, much of the generated MD data remains \enquote{dark data} --- simulations that are effectively invisible to the community due to a lack of machine-actionable metadata and standardized annotation. Existing tools often still require significant expertise in command-line interfaces and complex scripting, maintaining a steep learning curve for experimental researchers.
+Despite these advancements, several challenges remain. The \enquote{Exabyte problem} highlights the logistical difficulty of moving petabytes of raw trajectory data across networks for analysis. Consequently, modern VREs must adopt a \enquote{data gravitation} approach, bringing analytical tools directly to the centralized data stores. While tools like BioBB lower the barrier to entry through Jupyter Notebooks, many existing VREs still require significant expertise in command-line interfaces, complex scripting, and manual infrastructure management, maintaining a steep learning curve for experimental researchers.
 
 \section{Cloud-Native Technologies in Science}
 
@@ -159,47 +178,70 @@ JupyterHub provides an interactive coding environment that is familiar to many r
 
 \chapter{Analysis and Design}
 
-\textit{TODO: Connect the dots from Chapter 2. "Because MD helps us understand drug discovery (2.1) but suffers from complexity (2.2), we designed MD Dash with the following goals..."}
+MD~Dash was designed to address the challenges identified in Chapter~\ref{ch:md_landscape}. Its primary objectives include providing a user-friendly interface to abstract simulation complexities, automating parameter optimization, and ensuring reproducibility through Jupyter notebook and InvenioRDM integration.
 
 \section{Workflow design}
 
-\textit{TODO: Propose the solution to the complexity described in Section 2.1. Explain the decision to break the workflow into 6 distinct steps and contrast this with the unstructured "manual" approach. Justify why this linear wizard approach is better for reproducibility than an open-ended terminal.}
+Following the workflow structure described in Section~\ref{sec:md_workflow}, MD~Dash was designed to guide users through all necessary steps of their molecular dynamics simulations. The workflow is structured as a linear wizard with six distinct steps:
 
-\section{Base platform}
+\begin{enumerate}
+    \setcounter{enumi}{-1}
+    \item \textbf{New experiment}
+    \item \textbf{Setup}
+    \item \textbf{Tune}
+    \item \textbf{Run}
+    \item \textbf{Analyze}
+    \item \textbf{Publish}
+\end{enumerate}
 
-\textit{TODO: Justify the choice of technologies described in 2.4. Why JupyterHub? (Interactive, familiar python environment). Why Kubernetes? (Per-user isolation, resource limits). Contrast with running on a shared SSH node (traditional HPC).}
+These steps are designed to provide a clear and structured path for users, ensuring that they do not miss any critical components of the simulation process. By breaking down the workflow into discrete stages, MD~Dash promotes reproducibility by enforcing a standardized sequence of actions and capturing all necessary metadata at each step. This contrasts with the traditional unstructured terminal approach, where users may skip steps or fail to document their process, leading to difficulties in reproducing results.
+
+\section{Platform choice}
+
+To focus on integrating the workflow rather than building the application from scratch, it was decided to leverage the capabilities of JupyterHub for user management and resource allocation. As discussed in section~\ref{sec:VREs}, some researchers are already familiar with the Jupyter ecosystem. Most biochemistry scientists are also familiar with Python and its scientific libraries, so it was a natural choice to use Jupyter notebooks as the main interface for setting up and analyzing simulations. JupyterHub provides a multi-user environment that allows each user to have their own isolated workspace, which is essential for running multiple computations concurrently without interference. Additionally, JupyterHub can be easily deployed on Kubernetes, which provides robust resource management and scalability options.
 
 \section{Simulation engine}
 
-\textit{TODO: Why gromacs?}
+\textit{TODO: Why gromacs? Why not LAMMPS? Why not both? This section should be discussed before writing.}
 
-\section{New experiment}
+\section{Workflow steps}
 
-\textit{TODO: step 0 - reasons for the 3 options for input files, why we decided to support creating an experiment from an existing one on MDRepo, why we decided to support downloading .pdb files from RCSB PDB, why we decided to support custom notebooks repository}
+\subsection{New experiment}
 
-\section{Setup}
+The initialization of a new experiment is designed with a focus on reproducibility and workflow flexibility. To facilitate these principles, MD~Dash supports several methods for retrieving starting structures and simulation parameters. Users can instantiate an experiment directly from the MDRepo repository, enabling the reuse of verified, previously published simulations as templates. Alternatively, structural data can be fetched by providing a PDB ID from the RCSB Protein Data Bank (PDB) or by uploading local configuration files directly.
 
-\textit{TODO: step 1 - why we decided to use reusable Jupyter notebooks for the setup, what are the advantages of this approach compared to other similar tools and to the traditional way of running MD simulations, Jupyter notebooks preserve "history" and exact steps of the setup}
+Furthermore, the environment allows users to specify a remote Git repository for the Jupyter notebooks used in subsequent setup and analysis stages. This feature includes support for Binder-compatible repositories, which provides native compatibility with the BioExcel Building Blocks (BioBB) library discussed in section~\ref{sec:VREs}. By integrating these diverse input sources, the platform ensures that researchers adhere to standardized protocols and also have the flexibility to customize their workflows according to their specific research needs.
 
-\section{Tune}
+\subsection{Setup}
 
-\textit{TODO: Step 2 - Describe the integration with the "Black Box" tuner service. Focus on the integration contract: Input (system size, atoms) to Output (optimal MPI/OpenMP settings). Do not detail the internal algorithms (genetic algorithms/Ray) as that is separate work. Cite the tuner as an external microservice developed by Adam Ondrejka. Explain the business value: automation of trial-and-error optimization.}
+Traditionally, setting up MD simulations involves a series of manual commands executed in a terminal, often documented in a text file or a custom script. This approach can lead to issues with reproducibility, as it relies heavily on the user's diligence in recording every step and parameter used. In contrast, using reusable Jupyter notebooks for the setup process offers several advantages:
 
-\section{Run}
+\begin{itemize}
+    \item \textbf{Documentation and Reproducibility}: Jupyter notebooks inherently combine code, documentation, and results in a single document. This allows researchers to capture the entire setup process, including the rationale behind each step, in a format that is easy to understand and reproduce.
+    \item \textbf{Flexibility and Customization}: Notebooks can be easily modified and extended. Researchers can add new cells for additional setup steps, modify existing code to accommodate specific requirements, or integrate new tools without needing to rewrite an entire script.
+    \item \textbf{Interactive Environment}: Jupyter notebooks provide an interactive environment where researchers can execute code cells individually, allowing for iterative development and immediate feedback. This is particularly beneficial during the setup phase, where adjustments may be necessary based on intermediate results.
+    \item \textbf{Integration with BioBB}: By supporting Binder-compatible repositories, the platform allows users to leverage the BioExcel Building Blocks library, which provides pre-built workflows for biomolecular simulations. This integration further enhances the ease of use and standardization of the setup process.
+\end{itemize}
 
-\textit{TODO: step 3 - talk about why we created MDRun API, why the simulations are not running inside user namespace, all the S3 shenanigans we have to do to make cross-namespace file sharing}
+\subsection{Tune}
 
-\section{Analyze}
+Correct parameter selection for the simulation is often omitted from the traditional MD workflow~(\ref{sec:md_workflow}). It is however the most important step for efficient use of computational resources. If the parameters are not selected correctly, the process can run much slower than it should, which can lead to increased costs and longer time to results. The tune step in MD~Dash addresses this issue by providing an automated way to optimize the hyperparameters. This is achieved through integration with a GROMACS Tuner~\cite{gromacs_tuner} service, which performs short benchmark runs with different configurations and selects the best one based on performance metrics. By automating this process, MD~Dash ensures that users can achieve optimal performance without needing to manually experiment with different settings, thus saving time and computational resources.
 
-\textit{TODO: step 4 - talk about what analysis tools we decided to integrate and why, talk about live file analysis}
+\subsection{Run}
 
-\section{Publish}
+After obtaining the optimal parameters from the tuning step, users can proceed to run their simulations directly from the MD~Dash interface. The platform utilizes Kubernetes Jobs to manage the execution of GROMACS simulations, providing correct resource allocation and isolation for each simulation run. The MDRun API (\ref{sec:mdrun_api}) serves as the interface for starting and monitoring these simulations, allowing users to track the progress and resource usage in real-time. Additionally, MD~Dash provides live file access during the simulation run, enabling users to inspect intermediate results and make informed decisions about their simulations without needing to wait for completion.
+
+\subsection{Analyze}
+
+\textit{TODO: step 4 - talk about what analysis tools we decided to integrate and why, talk about live file analysis, integration of MDDB analysis tools, integration of MDRepo visualization components, also the option to spin up a Jupyter notebook for custom analysis scripts}
+
+\subsection{Publish}
 
 \textit{TODO: step 5 - MDRepo magically exists and perfectly fits our needs, talk about why we decided to use it, talk about how it ties back to the setup step for reusability}
 
 \section{User Interface Design}
 
-\textit{TODO: talk about concrete UI design decisions, challenges with combining 4 UIs (dashboard, JupyterHub, JupyterLab, MDRepo)}
+JupyterHub provides a simple and flexible interface for handling user authentication and isolation. JupyterLab serves as the main environment for notebook interaction. However to tie everything together a custom dashboard was required to guide users through the workflow and provide an overview of their experiments. The dashboard also serves as the main entry point for accessing the JupyterLab environment and all other external services. It is designed to be simple and intuitive, with a focus on providing users with the information they need to manage their experiments effectively. The goal was to create a seamless experience where users can easily navigate between the dashboard, JupyterHub, JupyterLab and MDRepo without feeling like they are using multiple disconnected tools.
 
 
 \chapter{Architecture and Implementation}
@@ -227,11 +269,12 @@ JupyterHub provides an interactive coding environment that is familiar to many r
 
 \section{User Interface}
 
-\textit{TODO: Frontend architecture. Stack: React, Material-UI, Vite. Describe the distribution where static files are embedded in the Caddy Proxy container. Explain the Runtime Config Injection where window.MDDASH\_CONFIG is injected by Caddy (solves build-once, run-anywhere).}
+\textit{TODO: Frontend architecture. Stack: React, ShadCN, Vite, React Query. Describe the distribution where static files are embedded in the Caddy Proxy container. Explain the Runtime Config Injection where window.MDDASH\_CONFIG is injected by Caddy (solves build-once, run-anywhere).}
 
 \section{MDRun API}
+\label{sec:mdrun_api}
 
-\textit{TODO: The simulation execution engine. Mention the Background Polling Pattern with daemon threads querying Kubernetes for job status. Discuss SQLite WAL Mode used for concurrent read/write handling during heavy I/O.}
+\textit{TODO: What is `gmx mdrun`. Why it is in a separate namespace. It just starts HPC k8s jobs. Mention the Background Polling Pattern with daemon threads querying Kubernetes for job status.}
 
 \section{Caddy Proxy}
 
@@ -241,9 +284,9 @@ JupyterHub provides an interactive coding environment that is familiar to many r
 
 \textit{TODO: Authentication flow. Discuss Forward Auth using Caddy's forward\_auth directive to offload session validation. Explain Session Management with in-memory store and HMAC-signed state. Mention Component Isolation with non-root containers (UID 1000).}
 
-\section{S3 sync daemon}
+\section{S3 sync}
 
-\textit{TODO: Discuss the Data Synchronization Sidecar Pattern. Explain how the S3 sync daemon runs as a sidecar container inMD Dash API pod to handle bidirectional file synchronization between local storage and S3 buckets in real-time. Describe why it is not used inside MDRun API (we only need one directional sync there)}
+\textit{TODO: Discuss the Data Synchronization Sidecar Pattern. Why it is necessary for cross-namespace data sharing. Explain how the S3 sync daemon runs as a sidecar container inMD~Dash API pod to handle bidirectional file synchronization between local storage and S3 buckets in real-time. Describe why the daemon is not used inside MDRun API (we only need one directional sync there)}
 
 \section{Development Workflow}
 
@@ -263,7 +306,7 @@ JupyterHub provides an interactive coding environment that is familiar to many r
 
 \textit{TODO: app overview without architectural details, just to understand the app itself, then in the next chapter we can go into the technical details of how it works and how it was developed}
 
-The app is accessible at https://mddash.dyn.cloud.e-infra.cz/. After logging in using the e-INFRA OIDC service, the user namespace and pod should start being initialized. Once ready, user will automatically be redirected to the main dashboard. Here they are shown an overview of their existing simulations, the current resource usage and quick links to create a new simulation or access the documentation.
+The application is accessible at https://mddash.dyn.cloud.e-infra.cz/. After logging in using the e-INFRA OIDC service, the user namespace and pod should start being initialized. Once ready, user will automatically be redirected to the main dashboard. Here they are shown an overview of their existing simulations, the current resource usage and quick links to create a new simulation or access the documentation.
 
 \begin{figure}[h]
     \centering
@@ -321,7 +364,7 @@ When creating a new experiment, the user is presented with a few options:
 
 \chapter{Evaluation}
 
-\textit{TODO: talk about passing the app to some real users, getting feedback, improving the app based on their feedback, compare MD Dash to other similar tools and to the traditional way of running MD simulations}
+\textit{TODO: talk about passing the app to some real users, getting feedback, improving the app based on their feedback, compare MD~Dash to other similar tools and to the traditional way of running MD simulations; why is MD~Dash useful, how it will help the users}
 
 
 \chapter{Conclusion}
