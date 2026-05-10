@@ -393,15 +393,15 @@ MDDash adopts a unified approach to build automation, configuration management, 
 
 \subsection{Build Tooling and Configuration}
 
-The build process is orchestrated through a hierarchy of Makefiles. The root Makefile reads the current Git branch to determine the target environment: \texttt{master} maps to production, all other branches to development. It then delegates to component-specific Makefiles for building and pushing container images and to the Helm Makefile for chart deployment. A full build-push-deploy cycle is invoked through a single Make target.
+The build process is orchestrated through a hierarchy of Makefiles. The root Makefile reads the current Git branch to determine the target environment: \texttt{master} maps to production, all other branches to development. Container image builds are delegated to component-specific Makefiles, while chart deployment is handled by the Helm Makefile.
 
-Each environment has a dedicated YAML configuration file --- \texttt{config.yaml} for production and \texttt{config.dev.yaml} for development. These files serve as the single source of truth for all deployment parameters, including resource limits, storage class, OIDC endpoints, and image references. Both the Gomplate template described in Section~\ref{sec:jupyterhub_orchestration} and the Makefiles read from these files, so a parameter change in one place propagates to the entire deployment.
+Each environment has a dedicated YAML configuration file (\texttt{config.yaml} for production, \texttt{config.dev.yaml} for development) that serves as the single source of truth for all deployment parameters, including resource limits, storage class, OIDC endpoints, and image references. Both the Gomplate template (Section~\ref{sec:jupyterhub_orchestration}) and the Makefiles consume this file, so a parameter change propagates to the entire deployment.
 
-Container images are tagged differently per environment. In development, all images share a static \texttt{dev} tag that is overwritten on every build. In production, each build produces an immutable tag equal to the Git commit SHA, which makes it possible to identify the exact build running on the cluster and to roll back to any prior version.
+Container images are tagged differently per environment. Development images share a static \texttt{dev} tag overwritten on every build. Production images receive an immutable tag equal to the Git commit SHA, which identifies the exact build running on the cluster and supports rollback to any prior version.
 
 \subsection{CI/CD Pipeline}
 
-The automation is implemented as two GitHub Actions workflows. The CI workflow triggers on every push and pull request to any branch and runs linting, unit tests, and static type checking for all components in parallel. The CD workflow triggers only on pushes to the \texttt{dev} and \texttt{master} branches. It first determines which components have changed and builds only the affected container images. It then provisions the required Kubernetes secrets from stored credentials and performs a Helm install or upgrade. After a successful deployment, the pipeline confirms the service is healthy by querying the JupyterHub health endpoint.
+The automation is implemented as two GitHub Actions workflows. The CI workflow triggers on every push and pull request, running linting, unit tests, and static type checking for all components in parallel. The CD workflow triggers only on pushes to \texttt{dev} and \texttt{master}. It rebuilds only the container images affected by the change, provisions the required Kubernetes secrets from stored credentials, and performs a Helm install or upgrade. A final health check against the JupyterHub endpoint confirms the deployment.
 
 \begin{figure}[H]
     \centering
@@ -424,11 +424,11 @@ The application is accessible at \url{https://mddash.dyn.cloud.e-infra.cz}. Afte
 
 \section{New Experiment}
 
-The experiment creation form (Figure~\ref{fig:new-experiment}) is the entry point for the workflow described in Section~\ref{sec:workflow_steps}. The user provides a name, selects an engine (GROMACS or AMBER), and picks one of three initial data sources. \textit{Upload Files} accepts a drag-and-drop file upload directly. \textit{PDB ID} fetches a structure from the RCSB Protein Data Bank. \textit{DOI / Repository} clones a previously published MDRepo record, enabling the reuse loop described in Section~\ref{sec:step_publish}. The Notebooks Repository field is pre-populated with the official \texttt{mddash-notebooks} repository and supports both standard Git repositories and Binder-compatible repositories, as discussed in Section~\ref{sec:VREs}. Allowing it to be overridden gives research groups the flexibility to maintain their own curated notebook sets.
+The experiment creation form (Figure~\ref{fig:new-experiment}) is the entry point for the workflow described in Section~\ref{sec:workflow_steps}. The user provides a name, selects an engine (GROMACS or AMBER), and picks one of three initial data sources. \textit{Upload Files} accepts a drag-and-drop upload. \textit{PDB ID} fetches a structure from the RCSB Protein Data Bank. \textit{DOI / Repository} clones a previously published MDRepo record, enabling the reuse loop described in Section~\ref{sec:step_publish}. The Notebooks Repository field is pre-populated with the official \texttt{mddash-notebooks} repository and accepts any standard Git or Binder-compatible repository (Section~\ref{sec:VREs}). The override allows research groups to maintain their own curated notebook sets.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{img/new.png}
+    \includegraphics[height=10cm]{img/new.png}
     \caption{Experiment creation form}
     \label{fig:new-experiment}
 \end{figure}
