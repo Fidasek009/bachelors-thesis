@@ -47,16 +47,16 @@
     abstract    = {%
       Molecular dynamics (MD) simulations are essential for computational drug discovery and biological research. Their day-to-day use is nevertheless constrained by four limitations: the absence of systematic performance tuning, the command-line nature of the dominant simulation engines, the lack of standardized data stewardship, and the disconnection of analysis from the rest of the workflow.
 
-      This thesis presents MDDash, a virtual research environment that unifies the MD simulation lifecycle within a single web-based platform. After an experiment is initialized from a PDB structure, local upload, or previously published record, the system guides users through a five-stage wizard: (1) simulation preparation via reproducible Jupyter notebooks; (2) automatic performance tuning through short benchmark runs; (3) production execution in the tuned configuration; (4) integrated analysis and visualization; and (5) direct publication to MDRepo, a domain-specific repository built on the InvenioRDM framework, with automatically extracted metadata.
+      This thesis presents MDDash, a virtual research environment that unifies the MD simulation lifecycle within a single web-based platform. After an experiment is initialized from a Protein Data Bank (PDB) structure, local upload, or previously published record, the system guides users through a five-stage wizard. The stages cover (1) simulation preparation via reproducible Jupyter notebooks, (2) automatic performance tuning through short benchmark runs, (3) production execution in the tuned configuration, (4) integrated analysis and visualization, and (5) direct publication to MDRepo, a domain-specific repository built on the InvenioRDM framework, with automatically extracted metadata.
 
       The platform was evaluated through qualitative feedback sessions with domain researchers and a comparative experiment against the traditional command-line workflow and the BioExcel Building Blocks library on a reference lysozyme system. The comparison showed a substantial reduction in active wall-clock time relative to both baselines. MDDash is deployed and released as an open-source project.
     },
     thanks      = {%
-      I would like to thank Adrián Rošinec for hiring me into his research team and trusting me with a big project like MDDash. I really value the developer freedom given to me and the opportunity to hone my skills in all parts of a project development.
+      I would like to thank Adrián Rošinec for accepting me into his research team and entrusting me with the MDDash project. I value the development freedom given to me and the opportunity to gain experience across all parts of project development.
 
-      I would also like to thank Aleš Křenek for giving me valuable feedback on MDDash and getting me into contact with domain researchers that are mentioned in the thesis. He also helped me stay motivated by using the app regularly and even making a poster to promote MDDash in the scientific community.
+      I would also like to thank Aleš Křenek for providing valuable feedback on MDDash and for putting me in contact with the domain researchers mentioned in the thesis. He also supported the project by using the application regularly and by preparing a poster that promoted MDDash in the scientific community.
 
-      Finally I would like to thank e-INFRA CZ for providing the infrastructure for deploying and testing MDDash on a scale not possible on my PC. Their self-hosted LLMs helped me integrate agentic development into my workflow.
+      Finally, I would like to thank e-INFRA~CZ for providing the infrastructure for deploying and testing MDDash at a scale not feasible on a personal workstation. Their self-hosted LLMs supported the integration of agent-assisted development into my workflow.
     },
     bib         = mddash.bib,
     %% Remove the following line to use the JVS 2018 faculty logo.
@@ -88,20 +88,21 @@
 \usepackage[babel]{csquotes} %% Context-sensitive quotation marks
 \usepackage{graphicx} %% For including images
 \usepackage{float}    %% Provides [H] placement specifier for figures
+\raggedbottom
 \begin{document}
 %% The \chapter* command can be used to produce unnumbered chapters
 
 \chapter{Introduction}
 
-Molecular dynamics (MD) is a computational technique that models the motion of atoms and molecules over time. Since its introduction in the late 1950s, it has become a central tool of computational biochemistry and drug discovery~\cite{md_for_all}. Its role became particularly visible during the COVID-19 pandemic in the search for SARS-CoV-2 inhibitors~\cite{md_in_covid}.
+Molecular dynamics (MD) is a computational technique that models the motion of atoms and molecules over time. Since its introduction in the late 1950s, it has become a central tool of computational biochemistry and drug discovery~\cite{md_for_all}. Its role was prominent during the COVID-19 pandemic in the search for SARS-CoV-2 inhibitors~\cite{md_in_covid}.
 
-Despite this maturity, day-to-day use of MD is constrained by four limitations that affect the same researcher within a single workflow. First, the standard workflow lacks a systematic step for selecting computational performance parameters. Moreover, no general-purpose automated benchmarking tool covers the full parameter space either. Suboptimal values therefore go undetected and translate into wasted compute over long production runs. Second, the dominant simulation engines are primarily designed as command-line tools, requiring custom scripts and ad hoc configuration files. Third, simulation outputs are typically shared through generalist repositories that do not enforce the domain-specific metadata standards required for independent reuse and verification of published results. Fourth, analysis relies on a separate set of tools that sit outside the simulation lifecycle, breaking provenance between setup, execution, and reported results.
+Despite this maturity, day-to-day use of MD is constrained by four limitations that affect the same researcher within a single workflow. First, the standard workflow lacks a systematic step for selecting computational performance parameters, and no general-purpose automated benchmarking tool for this purpose is in widespread use. Suboptimal values therefore go undetected and translate into wasted computation over long production runs. Second, the dominant simulation engines are primarily designed as command-line tools, requiring custom scripts and ad hoc configuration files. Third, simulation outputs are typically shared through generalist repositories that do not enforce the domain-specific metadata standards required for independent reuse and verification of published results. Fourth, analysis relies on a separate set of tools that sit outside the simulation lifecycle, breaking provenance between setup, execution, and reported results.
 
-The goal of this thesis is to design and implement an integrated virtual research environment (VRE), referred to as MDDash, that unifies the MD simulation lifecycle under a single interface and directly addresses each of these limitations. The principal contributions are: (1) the design of MDDash itself; (2) the integration of the GROMACS Tuner~\cite{gromacs_tuner} into an interactive wizard workflow, making benchmark-driven parameter selection part of the standard procedure; and (3) a direct connection between the simulation lifecycle and a domain-specific repository (MDRepo~\cite{mdrepo_ui}), with automatic extraction of simulation metadata at the point of publication.
+The goal of this thesis is to design and implement an integrated virtual research environment (VRE), referred to as MDDash, that unifies the MD simulation lifecycle under a single interface and directly addresses each of these limitations. The principal contributions are the following. The first is the design of MDDash itself. The second is the integration of the GROMACS Tuner~\cite{gromacs_tuner} into an interactive wizard workflow, which makes benchmark-driven parameter selection part of the standard procedure. The third is a direct connection between the simulation lifecycle and a domain-specific repository (MDRepo~\cite{mdrepo_ui}). At the point of publication, simulation metadata is extracted automatically.
 
 MDDash is implemented as a multi-user web platform that combines a guided wizard with an integrated notebook environment. The wizard supports routine production work and covers the setup, execution, analysis, and publication stages of an MD experiment. The notebook environment accommodates advanced users with non-standard simulation setups. Research groups can also plug in their own curated Jupyter notebook collections, building on the default set distributed with the platform.
 
-The platform was evaluated through two methods. The first was qualitative feedback sessions with domain researchers from the Central European Institute of Technology (CEITEC) and the Center for Magnetic Resonance (CERM). The second was a quantitative comparative experiment against the traditional command-line workflow and the BioExcel Building Blocks (BioBB) library~\cite{BioBB} on a reference lysozyme system. User testing confirmed the platform's suitability for production use. The comparative experiment showed a substantial reduction in active wall-clock time relative to both baselines, with timings detailed in Section~\ref{sec:comparative_experiment}. MDDash is deployed on a Kubernetes cluster and released as an open-source project. End-to-end validation of the publication step remains contingent on the ongoing production rollout of MDRepo.
+The platform was evaluated through two methods. The first was qualitative feedback sessions with domain researchers from the Central European Institute of Technology (CEITEC) and the Center for Magnetic Resonance (CERM). The second was a quantitative comparative experiment against the traditional command-line workflow and the BioExcel Building Blocks (BioBB) library~\cite{BioBB} on a reference lysozyme system. Both researchers reported that the platform addresses the workflow needs of their groups. The comparative experiment measured a reduction in active wall-clock time relative to both baselines, with timings detailed in Section~\ref{sec:comparative_experiment}. MDDash is deployed on a Kubernetes cluster and released as an open-source project. End-to-end validation of the publication step remains contingent on the ongoing production rollout of MDRepo.
 
 
 \chapter{Molecular Dynamics Landscape}
@@ -109,9 +110,7 @@ The platform was evaluated through two methods. The first was qualitative feedba
 
 Molecular dynamics simulation is a computational technique used to model the physical movements of atoms and molecules over time. It provides insights into the structure, dynamics, and interactions of biological macromolecules, which are crucial for drug discovery and understanding fundamental biological processes~\cite{md_for_all}.
 
-Experimental methods such as X-ray crystallography and nuclear magnetic resonance (NMR) spectroscopy can resolve static atomic-level structures. However, the primary benefit of molecular dynamics lies in its ability to capture dynamic behavior and time-resolved processes that are difficult to observe experimentally. These include conformational transitions, transient intermediate states, and rare events.
-
-Setting up and running such simulations is a multi-step process. Each step carries its own set of parameters and configurations. This complexity can be a barrier for researchers, especially those who are new to the field or do not have extensive computational expertise.
+Experimental methods such as X-ray crystallography and nuclear magnetic resonance (NMR) spectroscopy can resolve static atomic-level structures. However, the primary benefit of molecular dynamics lies in its ability to capture dynamic behavior and time-resolved processes that are difficult to observe experimentally. These include conformational transitions, transient intermediate states, and rare events. Setting up and running such simulations is a multi-step process, with each step carrying its own set of parameters and configurations. This complexity raises the entry barrier for researchers without extensive computational expertise.
 
 \section{Typical Molecular Dynamics Workflow}
 \label{sec:md_workflow}
@@ -128,16 +127,16 @@ When conducting MD research, scientists typically follow this workflow~\cite{gmx
 
 In modern scientific practice, the workflow does not end at analysis: the simulation outputs and the derived results are typically expected to be shared, both as figures and discussion within a publication and as the underlying data deposited in a research data repository. The data-sharing dimension of this final stage, including its associated infrastructural challenges, is examined separately in Section~\ref{sec:reproducibility}.
 
-Notably absent from this standard workflow is any systematic step for selecting computational performance parameters, such as the balance between MPI ranks and OpenMP threads or GPU assignment. In practice, researchers typically rely on prior experience or institutional documentation to configure these settings, as no general automated benchmarking tool exists that covers the full parameter space for a given system and hardware combination. This often results in suboptimal configurations and unnecessary waste of computational resources, an issue documented and addressed in detail by Adam Ondrejka~\cite{gromacs_tuner} in the work that motivates the GROMACS Tuner integration adopted later in this thesis.
+Notably absent from this standard workflow is any systematic step for selecting computational performance parameters, such as the balance between MPI ranks and OpenMP threads or GPU assignment. In practice, researchers typically rely on prior experience or institutional documentation to configure these settings. No general-purpose automated benchmarking tool for this purpose is in widespread use, so suboptimal configurations often go undetected and translate into unnecessary waste of computational resources. The GROMACS Tuner~\cite{gromacs_tuner}, developed by Adam Ondrejka, addresses this gap.
 
 \section{Molecular Dynamics Simulation Software}
 \label{sec:md_software}
 
 For running molecular dynamics simulations, several software packages are available, each with its own strengths and weaknesses. A comparative study by Shirts et al.~\cite{gmx_software_comparison} examines a representative set of these engines: GROMACS~\cite{gromacs}, AMBER~\cite{amber}, LAMMPS~\cite{lammps}, CHARMM~\cite{charmm}, and DESMOND~\cite{desmond}. While these programs are designed to perform similar tasks and evaluate the same underlying physical models, they often have different default parameters, integration schemes, and even variations in fundamental constants (such as Coulomb's constant). These differences can lead to variations in simulation results and make cross-engine reproducibility challenging if not carefully managed~\cite{gmx_software_comparison}.
 
-Among the available engines, GROMACS is one of the most established and widely used, owing to its performance, feature coverage, and broad adoption. AMBER is another common choice, particularly for workflows that depend on its force field ecosystem and GPU-accelerated implementation.
+Among the available engines, GROMACS is one of the most established and widely used, owing to its performance, feature coverage, and broad adoption. AMBER is another common choice, particularly for workflows that depend on its force field ecosystem.
 
-Despite its widespread adoption, GROMACS is primarily designed as a command-line tool, which can make it less accessible to users unfamiliar with terminal-based workflows. This often leads to reliance on custom scripts and manual setup processes, which can be error-prone and difficult to reproduce.
+Despite its widespread adoption, GROMACS is primarily designed as a command-line tool, which can make it less accessible to users unfamiliar with terminal-based workflows. This often leads to reliance on custom scripts and manual setup processes, which are difficult to reproduce without complete records of every command and parameter used.
 
 \section{Reproducibility and Data Management}
 \label{sec:reproducibility}
@@ -146,9 +145,9 @@ The \enquote{reproducibility crisis} in computational molecular science stems fr
 
 A separate but compounding problem is the lack of standardized infrastructure for sharing simulation data. Modern MD simulations generate massive volumes of trajectory data, creating a \enquote{data deluge}. Historically, these outputs were stored on local hard drives or institutional servers, often discarded after publication. Driven by Open Science mandates and the FAIR (Findable, Accessible, Interoperable, and Reusable) principles, there is now a strong demand for robust data stewardship that addresses this infrastructural dimension of the problem~\cite{md_reproducibility, mddb_fair}.
 
-In the absence of a unified global infrastructure, researchers frequently rely on generalist data repositories such as Zenodo~\cite{zenodo}, Figshare~\cite{figshare} and Open Science Framework (OSF)~\cite{osf}. Zenodo, in particular, is widely used and is built upon the InvenioRDM framework~\cite{InvenioRDM} -- a research data management platform developed by CERN. InvenioRDM is designed to handle large-scale research data, providing long-term preservation and assigning persistent identifiers like Digital Object Identifiers (DOIs).
+In the absence of a unified global infrastructure, researchers frequently rely on generalist data repositories such as Zenodo~\cite{zenodo}, Figshare~\cite{figshare} and Open Science Framework (OSF)~\cite{osf}. Zenodo, in particular, is widely used and is built upon the InvenioRDM framework~\cite{InvenioRDM} --- a research data management platform developed by CERN. InvenioRDM is designed to handle large-scale research data, providing long-term preservation and assigning persistent identifiers like Digital Object Identifiers (DOIs).
 
-While generalist repositories provide essential infrastructure, their agnostic nature allows the deposition of arbitrary file types without enforcing domain-specific metadata standards. This practice has led to the accumulation of \enquote{dark matter}~\cite{md_repo_problem} -- petabytes of trajectory files that lack the necessary contextual metadata (such as force field parameters, integration temperatures, or system topologies) required for independent verification or automated meta-analysis.
+While generalist repositories provide essential infrastructure, their agnostic nature allows the deposition of arbitrary file types without enforcing domain-specific metadata standards. This practice has led to the accumulation of \enquote{dark matter}~\cite{md_repo_problem} --- petabytes of trajectory files that lack the necessary contextual metadata (such as force field parameters, integration temperatures, or system topologies) required for independent verification or automated meta-analysis.
 
 To overcome the limitations of generalist platforms, the biomolecular community has developed domain-specific repositories, such as GPCRmd~\cite{GPCRmd} or MoDEL~\cite{MoDEL}. These specialized platforms enforce strict metadata schemas and integrate web-based visualization tools. However, this specialization introduces architectural fragmentation, as independent databases often utilize disparate ontologies and APIs, hindering cross-domain interoperability.
 
@@ -159,9 +158,9 @@ Bridging the gap between generalist infrastructure and domain-specific requireme
 
 The analysis stage is increasingly limited by data handling rather than by the computational cost of individual metrics. Contemporary trajectories can reach terabyte scale, and traditional post-processing based on ad hoc shell scripts and local desktop tools often provides insufficient provenance, weak metadata consistency, and limited reuse across projects. In current practice, this problem is addressed by combining tools for standardized trajectory curation with tools for interactive inspection~\cite{md_analysis_tools}.
 
-The MDDB Workflow~\cite{mddb_workflow} is one such curation tool. It is an engine-agnostic workflow tool that harmonizes datasets produced by major simulation packages while preserving the provenance and metadata required for independent reuse. Compared with manually assembled analysis scripts, this tool reduces dataset heterogeneity and improves cross-study comparability.
+The Molecular Dynamics Data Bank (MDDB) Workflow~\cite{mddb_workflow} is one such curation tool. It is an engine-agnostic workflow tool that harmonizes datasets produced by major simulation packages while preserving the provenance and metadata required for independent reuse. Compared with manually assembled analysis scripts, this tool reduces dataset heterogeneity and improves cross-study comparability.
 
-For interactive analysis and communication of results, Mol*~\cite{molstar_viewer} is a widely used visualization tool. In contrast to desktop-oriented tools such as VMD~\cite{VMD}, PyMOL~\cite{PyMOL}, and ChimeraX~\cite{ChimeraX}, Mol* better supports collaborative inspection of large structural datasets and requires no setup on the user side. Relative to earlier web visualization tools such as NGL~\cite{ngl_viewer}, the reported advantages are improved scalability and a more suitable basis for sharing trajectory-derived insights.
+For interactive analysis and communication of results, Mol*~\cite{molstar_viewer} is a widely used visualization tool. In contrast to desktop-oriented tools such as VMD~\cite{VMD}, PyMOL~\cite{PyMOL}, and ChimeraX~\cite{ChimeraX}, Mol* better supports collaborative inspection of large structural datasets and requires no client-side setup. Relative to earlier web visualization tools such as NGL~\cite{ngl_viewer}, the reported advantages are improved scalability and a more suitable basis for sharing trajectory-derived results.
 
 \section{Virtual Research Environments}
 \label{sec:VREs}
@@ -183,7 +182,7 @@ Despite progress in both generalist and domain-specific repositories, data stewa
 
 The analysis stage is not integrated with the rest of the simulation lifecycle (Sections~\ref{sec:md_analysis_tools} and~\ref{sec:VREs}). Existing VREs reduce certain barriers through tools such as Jupyter notebooks, but they do not unify the full pipeline --- from initial setup through data publication --- under a single interface with consistent provenance tracking.
 
-These limitations affect the same researcher within a single workflow. The observed gaps in the MD landscape therefore motivate the design and implementation of an integrated platform that systematically addresses the entry barrier, automates performance tuning, enforces reproducible data stewardship, and connects analysis with the broader simulation lifecycle. Such a platform is the subject of the following chapter.
+Taken together, these gaps motivate the design and implementation of an integrated platform that systematically addresses the entry barrier, automates performance tuning, enforces reproducible data stewardship, and connects analysis with the broader simulation lifecycle. Such a platform is the subject of the following chapter.
 
 
 \chapter{MDDash Design and Requirements}
@@ -195,11 +194,11 @@ MDDash was designed as an integrated platform that guides users through the comp
 
 To focus on integrating the workflow rather than building application infrastructure from scratch, JupyterHub~\cite{jupyter} was chosen as the foundation for user management and resource allocation. As discussed in Section~\ref{sec:VREs}, researchers are already familiar with the Jupyter ecosystem, and most computational biochemists work regularly with Python and its scientific libraries. Using Jupyter notebooks as the main interface for simulation setup and analysis was therefore a straightforward choice, minimizing the learning overhead for the intended users.
 
-JupyterHub also provides the technical capabilities required by a multi-user platform. Each user receives an isolated workspace, which is essential for running multiple computations concurrently without interference. JupyterHub also deploys natively on Kubernetes, which enables centralized resource management and horizontal scaling.
+JupyterHub also provides the technical capabilities required by a multi-user platform. Each user receives an isolated workspace, which is essential for running multiple computations concurrently without interference. The platform deploys natively on Kubernetes, which enables centralized resource management and horizontal scaling.
 
 \section{Simulation Engine}
 
-As discussed in Section~\ref{sec:md_software}, several MD engines are available, each with distinct strengths. MDDash supports GROMACS and AMBER as its simulation engines. GROMACS is the primary engine, as it is the most widely adopted in the biomolecular simulation community and is the tool of choice for the target users. AMBER is supported as an alternative for users whose workflows depend on its force field ecosystem.
+As discussed in Section~\ref{sec:md_software}, several MD engines are available, each with distinct strengths. MDDash supports GROMACS and AMBER as its simulation engines. GROMACS is the primary engine, as it is the most widely adopted in the biomolecular simulation community and is the preferred engine for the target users. AMBER is supported as an alternative for users whose workflows depend on its force field ecosystem.
 
 To accommodate multiple engines, all engine-specific logic is encapsulated behind a common abstraction layer in both the Dashboard and MDRun services. Adding support for a new engine therefore requires only the implementation of a corresponding adapter module, with no changes to the surrounding workflow logic, user interface, or infrastructure.
 
@@ -215,9 +214,9 @@ Following the workflow structure described in Section~\ref{sec:md_workflow}, MDD
     \item \textbf{Publish}
 \end{enumerate}
 
-These steps are designed to provide a clear and structured path for users, ensuring that they do not miss any critical components of the simulation process. The discrete stages support reproducibility through a standardized sequence of actions and the metadata captured at each step. This contrasts with the traditional unstructured terminal approach, where users may skip steps or fail to document their process, leading to difficulties in reproducing results.
+The discrete stages support reproducibility through a standardized sequence of actions and the metadata captured at each step. This contrasts with the traditional unstructured terminal approach, in which steps may remain undocumented and the process is therefore difficult to reproduce.
 
-While the wizard presents a linear sequence, users are not required to repeat work they have already performed elsewhere. A researcher who arrives with a prepared system can upload the corresponding files at experiment creation and proceed through the Setup step without redoing the preparation.
+While the wizard presents a linear sequence, users are not required to repeat work they have already performed elsewhere. A researcher who arrives with a prepared system can upload the corresponding files at experiment creation and proceed through the setup step without redoing the preparation.
 
 \section{Workflow Steps}
 \label{sec:workflow_steps}
@@ -229,7 +228,7 @@ Each step in the MDDash workflow is designed to address specific challenges in t
 
 The initialization of a new experiment is designed with a focus on reproducibility and workflow flexibility. To facilitate these principles, MDDash supports several methods for retrieving starting structures and simulation parameters. Users can instantiate an experiment directly from the MDRepo repository, enabling the reuse of verified, previously published simulations as templates. Alternatively, structural data can be fetched by providing a PDB ID from the Research Collaboratory for Structural Bioinformatics (RCSB) Protein Data Bank (PDB) or by uploading local configuration files directly.
 
-Furthermore, the environment allows users to specify a remote Git repository for the Jupyter notebooks used in subsequent setup and analysis stages. The default value points to a curated set of community notebooks distributed with MDDash. These notebooks cover the standard MD preparation procedure and a baseline set of analyses. Users can run them as-is, adapt them to their own systems, or replace the collection with a different repository. Binder-compatible repositories are also supported, providing native compatibility with the BioExcel Building Blocks (BioBB) library discussed in Section~\ref{sec:VREs}. By integrating these diverse input sources, the platform ensures that researchers adhere to standardized protocols while retaining the flexibility to customize their workflows according to their specific research needs.
+Furthermore, the environment allows users to specify a remote Git repository for the Jupyter notebooks used in subsequent setup and analysis stages. The default value points to a curated set of community notebooks distributed with MDDash. These notebooks cover the standard MD preparation procedure and a baseline set of analyses. Users can run them as-is, adapt them to their own systems, or replace the collection with a different repository. Repositories compatible with Binder~\cite{binder} are also supported. Binder is a service that builds reproducible computing environments from Git repositories, which provides native compatibility with the BioExcel Building Blocks (BioBB) library discussed in Section~\ref{sec:VREs}. Together, these input sources give researchers a standardized starting point by default, while still allowing each research group to substitute its own structures and notebooks.
 
 \subsection{Setup}
 \label{sec:step_setup}
@@ -240,8 +239,8 @@ Traditionally, setting up MD simulations involves a series of manual commands ex
     \item \textbf{Documentation and Reproducibility}: Jupyter notebooks inherently combine code, documentation, and results in a single document. This allows researchers to capture the entire setup process, including the rationale behind each step, in a format that is easy to understand and reproduce.
     \item \textbf{Flexibility and Customization}: Notebooks can be easily modified and extended. Researchers can add new cells for additional setup steps, modify existing code to accommodate specific requirements, or integrate new tools without needing to rewrite an entire script.
     \item \textbf{Sharing and Collaboration}: Notebooks are plain-text artifacts that can be version-controlled and shared through standard tools such as Git. A research group can therefore maintain a single curated set of procedures collaboratively in a shared repository, rather than relying on individual scripts kept on personal machines.
-    \item \textbf{Interactive Environment}: Jupyter notebooks provide an interactive environment where researchers can execute code cells individually, allowing for iterative development and immediate feedback. This is particularly beneficial during the setup phase, where adjustments may be necessary based on intermediate results.
-    \item \textbf{Integration with BioBB}: By supporting Binder-compatible repositories, the platform allows users to use the BioExcel Building Blocks library, which provides pre-built workflows for biomolecular simulations. This integration further enhances the ease of use and standardization of the setup process.
+    \item \textbf{Interactive Environment}: Jupyter notebooks support per-cell execution, which enables iterative development with immediate feedback. This accommodates the adjustments often required during the setup phase based on intermediate results, without rerunning the entire procedure.
+    \item \textbf{Integration with BioBB}: Support for Binder-compatible repositories makes the BioExcel Building Blocks library directly usable within the setup environment, giving users access to its pre-built workflows for biomolecular simulations.
 \end{itemize}
 
 \subsection{Tune}
@@ -264,7 +263,7 @@ As discussed in Sections~\ref{sec:reproducibility} and~\ref{sec:md_analysis_tool
 \begin{itemize}
     \item \textbf{Molecular visualization}: Mol*~\cite{molstar_viewer} is embedded directly in the dashboard, allowing users to inspect simulation structures and trajectories without leaving the platform. This viewer is available not only after the simulation completes but also during an active run. This enables researchers to detect issues early and make informed decisions without waiting for the full simulation to finish.
     \item \textbf{MDDB workflow analyses}: The full suite of analyses provided by the MDDB Workflow~\cite{mddb_covid} is available for user-triggered execution. Results are displayed inline in the dashboard using visualization components shared with the MDRepo frontend~\cite{mdrepo_ui}, ensuring a consistent presentation of analysis outputs and reducing the overhead of learning a separate tool.
-    \item \textbf{Custom analysis notebooks}: For analyses that fall outside the scope of the integrated tools, users can launch a Jupyter notebook environment from within the analyze step. This reuses the same notebook controller introduced in the Setup step, giving researchers unrestricted access to the full Python scientific stack and any GROMACS command-line tools. Users can write and execute arbitrary analysis scripts, inspect raw output files, or use the BioBB library, all within the same environment they used to prepare their simulation.
+    \item \textbf{Custom analysis notebooks}: For analyses that fall outside the scope of the integrated tools, users can launch a Jupyter notebook environment from within the analyze step. This reuses the same notebook controller introduced in the setup step, giving researchers direct access to the full Python scientific stack and any GROMACS command-line tools. Users can write and execute arbitrary analysis scripts, inspect raw output files, or use the BioBB library, all within the same environment they used to prepare their simulation.
 \end{itemize}
 
 \subsection{Publish}
@@ -272,7 +271,7 @@ As discussed in Sections~\ref{sec:reproducibility} and~\ref{sec:md_analysis_tool
 
 The final step allows researchers to publish their completed experiment directly to MDRepo. As discussed in Section~\ref{sec:reproducibility}, MDRepo combines the scalable InvenioRDM infrastructure of generalist repositories with domain-specific metadata schemas required for MD data, making it a natural integration target for MDDash.
 
-The publish action is designed to require minimal user effort. MDDash automatically extracts simulation metadata using engine-specific tools and creates a pre-populated draft record on MDRepo, where the user can review it before finalizing. For GROMACS simulations, metadata is extracted using GROMACS MetaDump~\cite{gromacs_metadump}, a tool that reads simulation files and produces structured metadata. All experiment files, excluding temporary and cache artifacts, are uploaded alongside the metadata. A one-time OAuth authorization is required before the first publication.
+The publish action is designed to require minimal user effort. MDDash automatically extracts simulation metadata using GROMACS MetaDump~\cite{gromacs_metadump} and creates a pre-populated draft record on MDRepo, where the user can review it before finalizing. All experiment files, excluding temporary and cache artifacts, are uploaded alongside the metadata. A one-time OAuth authorization is required before the first publication.
 
 This step also closes the reusability loop introduced in the new experiment step. Because MDRepo preserves both the simulation data and the associated Jupyter notebooks, any researcher can create a new MDDash experiment from a published record, retrieving input files and notebook workflows to reproduce or adapt the original experiment.
 
@@ -280,7 +279,7 @@ This step also closes the reusability loop introduced in the new experiment step
 
 JupyterHub handles user authentication and workspace isolation, while JupyterLab serves as the environment for notebook interaction. However, neither component provides a structured view of the simulation workflow or an overview of a user's experiments. A custom dashboard was therefore developed to serve as the main entry point, guiding users through the workflow steps and integrating access to JupyterLab, the MDRun service, and MDRepo under a single interface.
 
-The dashboard is designed to be simple, exposing only the information relevant to each workflow stage. The primary design goal was to create a coherent experience in which users can move between the dashboard, JupyterLab, and MDRepo without perceiving them as separate, disconnected tools.
+The dashboard exposes only the information relevant to each workflow stage. The primary design goal was navigation continuity between the dashboard, JupyterLab, and MDRepo. Transitions between them do not require a change of context or repeated authentication.
 
 
 \chapter{Architecture and Implementation}
@@ -288,8 +287,6 @@ The dashboard is designed to be simple, exposing only the information relevant t
 This chapter describes how the design presented in Chapter~\ref{ch:mddash_design} is realized as a deployable system. The platform is implemented as a Helm release on a Kubernetes cluster, and its components are partitioned across two types of namespace: a single \textit{administrative namespace} that hosts the cluster-wide services, and a per-user namespace that hosts the interactive environment of an individual researcher. Figure~\ref{fig:architecture} shows the resulting topology and the principal communication paths between components.
 
 The administrative namespace hosts the cluster-wide services: JupyterHub, the MDRun API, and the GROMACS Tuner. Each user namespace, provisioned on first login, hosts a per-user interactive environment composed of multiple sidecars around a JupyterLab notebook server. The two tiers do not share storage. An S3 bucket serves as the integration point between them. Authentication is centralized at JupyterHub and enforced at the proxy layer of each user pod before any request reaches an internal service.
-
-The remainder of the chapter follows the diagram from the outside in. Section~\ref{sec:tenant_isolation} describes the namespace and quota model, Section~\ref{sec:sidecar_pattern} the composition of the user pod, and Section~\ref{sec:jupyterhub_orchestration} the spawn lifecycle. Sections~\ref{sec:dashboard_api}--\ref{sec:caddy_proxy} cover the individual services, followed by the cross-cutting concerns of security (Section~\ref{sec:security_architecture}), data synchronization (Section~\ref{sec:s3_sync}), and deployment automation (Section~\ref{sec:devops_configuration}).
 
 \begin{figure}[H]
     \centering
@@ -301,7 +298,7 @@ The remainder of the chapter follows the diagram from the outside in. Section~\r
 \section{Tenant Isolation Strategy}
 \label{sec:tenant_isolation}
 
-MDDash operates within a two-tier namespace structure on a Kubernetes cluster managed by Rancher. The first tier is the \textit{administrative namespace}, which hosts the JupyterHub hub component, the MDRun API (Section~\ref{sec:mdrun_api}), GROMACS Tuner~\cite{gromacs_tuner}, and other shared services deployed as part of the Helm~\cite{helm} release. The second tier consists of \textit{user namespaces}, each dedicated to a single user. A user namespace is named according to the pattern \texttt{\{release\}-user-\{username\}-ns} and is provisioned dynamically upon the first server spawn of that user, as described in Section~\ref{sec:jupyterhub_orchestration}.
+MDDash operates within a two-tier namespace structure on a Kubernetes cluster managed by Rancher~\cite{rancher}. The first tier is the \textit{administrative namespace}, which hosts the JupyterHub hub component, the MDRun API (Section~\ref{sec:mdrun_api}), GROMACS Tuner~\cite{gromacs_tuner}, and other shared services deployed as part of the Helm~\cite{helm} release. The second tier consists of \textit{user namespaces}, each dedicated to a single user. A user namespace is named according to the pattern \texttt{\{release\}-user-\{username\}-ns} and is provisioned dynamically upon the first server spawn of that user, as described in Section~\ref{sec:jupyterhub_orchestration}.
 
 The namespace boundary enforces isolation at the Kubernetes resource level: workloads belonging to different users cannot directly access each other's pods, services, or storage volumes. Each user namespace is subject to a \texttt{ResourceQuota} that constrains the aggregate CPU and memory consumption of all pods running within it. Rather than managing these quotas through standalone Kubernetes manifests, MDDash delegates quota enforcement to Rancher through namespace-level annotations. Rancher reconciles these annotations by creating and maintaining the corresponding \texttt{ResourceQuota} object within the namespace, which avoids duplicating quota configuration across both the Helm chart and the provisioning logic. The quota values are configurable through Helm values and are propagated to the provisioning logic at runtime via environment variables.
 
@@ -310,15 +307,14 @@ Because the hub component resides in the administrative namespace, KubeSpawner r
 \section{Sidecar Container Pattern}
 \label{sec:sidecar_pattern}
 
-Each user pod is composed of multiple containers sharing the same network namespace and a common \texttt{PersistentVolumeClaim} (PVC) backed by an NFS storage class. The PVC uses \texttt{ReadWriteMany} access mode so that it can be mounted simultaneously by the user pod, Jupyter notebook pods, and analysis job pods --- all of which must access the same filesystem. The primary container runs the JupyterHub single-user notebook server. Three functional sidecar containers are attached to every user pod:
+Each user pod is composed of multiple containers sharing the same network namespace and a common \texttt{PersistentVolumeClaim} (PVC) backed by an NFS storage class. The PVC uses \texttt{ReadWriteMany} access mode so that it can be mounted simultaneously by the user pod, Jupyter notebook pods, and analysis job pods --- all of which must access the same filesystem. The primary container runs the JupyterHub single-user notebook server. Four functional sidecar containers are attached to every user pod:
 
 \begin{itemize}
     \item \textbf{Proxy}: A Caddy-based reverse proxy that serves as the sole externally exposed endpoint of the pod. It routes incoming requests to the appropriate internal service based on the request path, enforces authentication through the \texttt{forward\_auth} mechanism described in Section~\ref{sec:security_architecture}, and serves the static frontend assets of the dashboard.
     \item \textbf{Authentication sidecar}: A lightweight Flask service responsible for validating session tokens against JupyterHub, as described in Section~\ref{sec:security_architecture}. It is consulted by the proxy on every incoming request before the request is forwarded to its target.
     \item \textbf{Dashboard API}: The Flask application implementing all business logic of the dashboard, including experiment management, job submission, and integration with external services. Its implementation is detailed in Section~\ref{sec:dashboard_api}.
+    \item \textbf{S3 sync daemon}: A container that continuously synchronizes the contents of the shared PVC with the user's S3 bucket, making simulation outputs accessible to all other containers in the pod through the shared filesystem.
 \end{itemize}
-
-An optional fourth sidecar is included when S3 object storage integration is configured. This container continuously synchronizes the contents of the user's S3 bucket with the shared PVC, making simulation outputs accessible to all other containers in the pod through the shared filesystem.
 
 The proxy container delays accepting external traffic until the authentication sidecar and the Dashboard API are ready, preventing requests from reaching an incompletely initialized pod. All sidecar containers run under the hardened security context described in Section~\ref{sec:security_architecture}.
 
@@ -342,7 +338,7 @@ The Dashboard API is a Flask~\cite{flask} application that exposes endpoints for
 
 The SQLAlchemy models follow the Active Record pattern: each model class combines the database schema definition with domain logic, including lifecycle methods, computed properties, and status resolution. Because several model properties reflect runtime state from external systems --- such as the current phase of a Kubernetes Job or the progress of a running simulation --- these are computed on demand and cached with short time-to-live values to avoid excessive API calls. Integration with external services (Kubernetes, MDRun API, GROMACS Tuner, Caddy, MDRepo) is handled through dedicated client modules, which isolates the external communication logic from the domain models. Marshmallow auto-schemas are used to serialize both database columns and computed properties into a consistent response format for the frontend.
 
-All persistent data is stored under a single directory, \texttt{DATA\_DIR}, which maps to the shared PVC described in Section~\ref{sec:tenant_isolation}. This includes the SQLite database, the Alembic migration history, and all experiment files such as simulation inputs and outputs. Using the PVC as the central data store means no separate database server is required, and all data survives pod restarts and deployments by default.
+All persistent data is stored under a single directory, \texttt{DATA\_DIR}, which maps to the shared PVC described in Section~\ref{sec:tenant_isolation}. This includes the SQLite database, the migration history, and all experiment files such as simulation inputs and outputs. Using the PVC as the central data store means no separate database server is required, and all data survives pod restarts and deployments by default.
 
 Database schema changes are managed through Flask-Migrate, which wraps the Alembic migration framework~\cite{alembic}. On each application startup, the API detects model changes, generates the corresponding migration, and applies all pending migrations. Because the migration files reside on the PVC alongside the database, no manual migration step is needed in the deployment pipeline.
 
@@ -397,11 +393,11 @@ MDDash adopts a unified approach to build automation, configuration management, 
 
 \subsection{Build Tooling and Configuration}
 
-The build process is orchestrated through a hierarchy of Makefiles. The root Makefile reads the current Git branch to determine the target environment: \texttt{master} maps to production, all other branches to development. It then delegates to component-specific Makefiles for building and pushing container images and to the Helm Makefile for chart deployment. A full build-push-deploy cycle can be triggered with a single command.
+The build process is orchestrated through a hierarchy of Makefiles. The root Makefile reads the current Git branch to determine the target environment: \texttt{master} maps to production, all other branches to development. It then delegates to component-specific Makefiles for building and pushing container images and to the Helm Makefile for chart deployment. A full build-push-deploy cycle is invoked through a single Make target.
 
 Each environment has a dedicated YAML configuration file --- \texttt{config.yaml} for production and \texttt{config.dev.yaml} for development. These files serve as the single source of truth for all deployment parameters, including resource limits, storage class, OIDC endpoints, and image references. Both the Gomplate template described in Section~\ref{sec:jupyterhub_orchestration} and the Makefiles read from these files, so a parameter change in one place propagates to the entire deployment.
 
-Container images are tagged differently per environment. In development, all images share a static \texttt{dev} tag that is overwritten on every build. In production, each build produces an immutable tag of the form \texttt{YYYYMMDD-<commit-sha>}. This tag embeds the deployment date and the source commit, which makes it possible to identify the exact build running on the cluster and to roll back to any prior version.
+Container images are tagged differently per environment. In development, all images share a static \texttt{dev} tag that is overwritten on every build. In production, each build produces an immutable tag equal to the Git commit SHA, which makes it possible to identify the exact build running on the cluster and to roll back to any prior version.
 
 \subsection{CI/CD Pipeline}
 
@@ -417,7 +413,7 @@ The automation is implemented as two GitHub Actions workflows. The CI workflow t
 
 \chapter{Application Walkthrough}
 
-The application is accessible at \url{https://mddash.dyn.cloud.e-infra.cz}. After authenticating through the e-INFRA CZ OIDC~\cite{einfra} identity provider, the user namespace and pod are provisioned. Once initialization is complete, the user is automatically redirected to the main dashboard, which presents an overview of existing experiments, current resource usage, and quick links for creating a new experiment or accessing the documentation.
+The application is accessible at \url{https://mddash.dyn.cloud.e-infra.cz}. After authenticating through the e-INFRA~CZ OIDC~\cite{einfra} identity provider, the user namespace and pod are provisioned. Once initialization is complete, the user is automatically redirected to the dashboard, which presents an overview of existing experiments, current resource usage, and quick links for creating a new experiment or accessing the documentation.
 
 \begin{figure}[H]
     \centering
@@ -474,7 +470,7 @@ Results appear in the table on the right. Each row reports the measured performa
 
 The run step (Figure~\ref{fig:simulation}) provides continuous observability into the active simulation, as described in Section~\ref{sec:step_run}. The status badge and progress bar show the current completion percentage alongside the step count and estimated remaining time. Below, the \textit{Simulation Parameters} panel confirms the configuration carried over from the tune step --- process count, thread layout, and particle mesh Ewald (PME) and non-bonded (NB) device assignment --- so the user can verify the tuned settings are in effect.
 
-The \textit{Logs} panel streams the GROMACS log output directly into the dashboard, including per-step energy terms and thermodynamic quantities. This enables early detection of simulation instabilities without requiring shell access to the cluster. The MDRun API (Section~\ref{sec:mdrun_api}) supplies both the progress data and the log stream.
+The \textit{Logs} panel streams the job logs directly into the dashboard, including per-step energy terms and thermodynamic quantities. This enables early detection of simulation instabilities without requiring shell access to the cluster. The MDRun API (Section~\ref{sec:mdrun_api}) supplies both the progress data and the log stream.
 
 \begin{figure}[H]
     \centering
@@ -485,11 +481,11 @@ The \textit{Logs} panel streams the GROMACS log output directly into the dashboa
 
 \section{Analyze}
 
-The analyze step integrates the three complementary analysis capabilities described in Section~\ref{sec:step_analyze} under a single interface. The left panel selects the structure, trajectory, and topology files to be used. It also exposes a Jupyter notebook controller giving the user unrestricted access to the full Python scientific stack as discussed in Section~\ref{sec:VREs}.
+The analyze step combines the three analysis tools described in Section~\ref{sec:step_analyze} under a single interface. The left panel selects the structure, trajectory, and topology files to be used. It also exposes a Jupyter notebook controller giving the user unrestricted access to the full Python scientific stack as discussed in Section~\ref{sec:VREs}.
 
 The right panel is split into two tabs. The \textit{Structure Viewer} tab (Figure~\ref{fig:analysis-molstar}) embeds the Mol* viewer directly in the dashboard. Trajectory frames can be navigated sequentially, enabling inspection of conformational changes without any external tooling. This viewer is available while a simulation is still running, supporting early detection of structural issues as noted in Section~\ref{sec:step_analyze}.
 
-The \textit{Analysis} tab (Figure~\ref{fig:analysis-mwf}) runs MDDB Workflow analyses on demand. Results are displayed inline as interactive charts. The radius of gyration plot shown reports per-frame statistics for Rg, RgX, RgY, and RgZ. This reuses visualization components from the MDRepo frontend, ensuring a consistent presentation without additional setup overhead.
+The \textit{Analysis} tab (Figure~\ref{fig:analysis-mwf}) runs MDDB Workflow analyses on demand. Results are displayed inline as interactive charts. The radius of gyration plot shown reports per-frame statistics for the total radius of gyration ($R_g$) and its components along the principal axes ($R_{g,X}$, $R_{g,Y}$, $R_{g,Z}$). This reuses visualization components from the MDRepo frontend, ensuring a consistent presentation without additional setup overhead.
 
 \begin{figure}[H]
     \centering
@@ -532,22 +528,20 @@ To obtain qualitative feedback on the platform, MDDash was presented to two rese
 
 One of the two researchers maintained a personal command reference of GROMACS commands in a Word document. This practice illustrates the gap noted in Section~\ref{sec:md_software}: in the absence of a standardized interface, users curate their own ad hoc references, which are neither version-controlled nor shareable. The pre-configured Jupyter notebooks distributed with MDDash (Section~\ref{sec:step_setup}) encode the same procedural steps in an executable and self-documenting form, removing the need for such external references and reducing the risk of copy-paste errors across projects.
 
-The feedback collected during these sessions led to two concrete changes. First, the experiment creation form originally restricted file uploads to a fixed set of pre-defined types; testers required the ability to upload arbitrary files to accommodate non-standard input formats, and the restriction was removed. Second, one researcher identified a race condition in the JupyterHub pre-spawn hook that could corrupt namespace provisioning when multiple spawns occurred in rapid succession. The hook logic was rewritten to serialize concurrent provisioning operations correctly.
+The feedback collected during these sessions led to two concrete changes. First, the experiment creation form originally restricted file uploads to a fixed set of pre-defined types. Testers required the ability to upload arbitrary files to accommodate non-standard input formats, and the restriction was removed. Second, one researcher identified a race condition in the JupyterHub pre-spawn hook that occurred during initial user environment creation. The hook logic was corrected to serialize provisioning operations.
 
-Both researchers expressed a positive overall assessment, stating that they recognized the potential of MDDash and indicated willingness to adopt it once the platform is ready for production use. They noted that the primary remaining blocker is the dependency on MDRepo reaching production readiness, which prevents the publish step from being exercised end-to-end (Section~\ref{sec:step_publish}).
-
-A broader and more systematic user study remains a direction for future work once this dependency is resolved.
+Both researchers indicated that MDDash addresses the workflow needs of their groups and stated their intent to adopt it once the platform reaches production readiness.
 
 \section{Comparative Experiment}
 \label{sec:comparative_experiment}
 
 To quantify the operational overhead of each approach, a representative simulation setup was carried out end-to-end through all three workflows. The reference system was hen egg-white lysozyme (PDB code 1AKI) in a cubic water box with neutralizing counter-ions, configured for a 10~ns production trajectory with GROMACS on a single GPU node. This system is small enough to complete in a tractable time and sufficiently representative of real biomolecular simulations to exercise every step of the workflow described in Section~\ref{sec:md_workflow}.
 
-All three approaches were evaluated under identical conditions to control for familiarity with the tools. A large language model (LLM) assistant was available throughout, reflecting the standard working environment of contemporary researchers; command construction, molecular dynamics parameter (MDP) file lookups, and error interpretation were performed with LLM assistance where applicable. The timings therefore represent a modern researcher rather than one relying exclusively on static documentation.
+All three approaches were evaluated under identical conditions to control for familiarity with the tools. A large language model (LLM) assistant was available throughout, reflecting the standard working environment of contemporary researchers. Command construction, molecular dynamics parameter (MDP) file lookups, and error interpretation were performed with LLM assistance where applicable. The timings therefore represent a modern researcher rather than one relying exclusively on static documentation.
 
 \subsection{Manual Workflow Timings}
 
-The manual workflow followed the standard command-line procedure described in the GROMACS documentation. The wall-clock time for each step, excluding the production run itself, is summarized in the following table.
+The manual workflow followed the standard command-line procedure described in a GROMACS lysozyme tutorial\footnote{\url{http://www.mdtutorials.com/gmx/lysozyme/index.html}}. The wall-clock time for each step, excluding the production run itself, is summarized in the following table.
 
 \begin{table}[H]
 \caption{Wall-clock time for the manual workflow}
@@ -556,22 +550,22 @@ The manual workflow followed the standard command-line procedure described in th
 \hline
 \textbf{Step} & \textbf{Time (min)} \\
 \hline
-Fetch and clean starting structure (remove crystallographic waters, heteroatoms) & 8 \\
-Generate topology with \texttt{pdb2gmx}; select force field and water model & 10 \\
-Define simulation box with \texttt{editconf} & 4 \\
-Solvate with \texttt{solvate} & 3 \\
-Write \texttt{ions.mdp}, run \texttt{grompp}, add counter-ions with \texttt{genion} & 10 \\
-Write \texttt{em.mdp}; run energy minimization; verify convergence & 10 \\
-Write \texttt{nvt.mdp}; run NVT equilibration & 20 \\
-Write \texttt{npt.mdp}; run NPT equilibration & 18 \\
-Write \texttt{md.mdp} for production & 8 \\
-Manual performance tuning: benchmark three MPI/OpenMP/GPU configurations, record ns/day & 70 \\
-Post-run analysis: locate and invoke \texttt{gmx rms}, \texttt{gmx rmsf}, \texttt{gmx gyrate}; interpret index groups & 35 \\
-Structural visualization: configure VMD or PyMOL session, load trajectory & 20 \\
-Data packaging: assemble inputs, outputs, and README for sharing & 25 \\
-Metadata preparation and repository upload & 30 \\
+Fetch PDB structure; clean input file (remove crystallographic waters and heteroatoms) & 3 \\
+Generate system topology; select force field and water model & 6 \\
+Define simulation box; solvate system & 3 \\
+Neutralize system charge with counter-ions & 10 \\
+Energy minimization & 10 \\
+NVT equilibration (temperature stabilization) & 15 \\
+NPT equilibration (pressure and density stabilization) & 25 \\
+Prepare production run parameter file & 8 \\
+Manual performance tuning: benchmark MPI/OpenMP/GPU configurations & 30 \\
+Apply tuned configuration to the production cells and start the run & 3 \\
+Trajectory post-processing and analysis (root-mean-square deviation, radius of gyration, secondary structure, hydrogen bonds) & 15 \\
+Structural visualization & 15 \\
+Manual data packaging and metadata preparation & 20 \\
+Manual repository upload & 10 \\
 \hline
-\textbf{Total} & \textbf{271} \\
+\textbf{Total} & \textbf{173} \\
 \hline
 \end{tabularx}
 \end{table}
@@ -587,7 +581,7 @@ Three categories of overhead dominate the total:
 \subsection{BioBB Workflow Timings}
 \label{sec:biobb-timings}
 
-The same experiment was reproduced using the BioExcel Building Blocks (BioBB)~\cite{BioBB} library, following the \texttt{biobb\_wf\_protein\_md} workflow notebook. BioBB encapsulates GROMACS commands in Python building blocks, eliminating the need for manual MDP authoring: each block accepts high-level parameters and generates the necessary input files internally. Performance tuning and repository publication are not provided by BioBB and were handled using the same manual approach as in the preceding workflow. The wall-clock time for each step is summarized in the following table.
+The same experiment was reproduced using the BioExcel Building Blocks (BioBB)~\cite{BioBB} library, following the \texttt{biobb\_wf\_md\_setup} workflow notebook\footnote{\url{https://github.com/bioexcel/biobb_wf_md_setup}}. BioBB encapsulates GROMACS commands in Python building blocks, eliminating the need for manual MDP authoring: each block accepts high-level parameters and generates the necessary input files internally. Performance tuning and repository publication are not provided by BioBB and were handled using the same manual approach as in the preceding workflow. The wall-clock time for each step is summarized in the following table.
 
 \begin{table}[H]
 \caption{Wall-clock time for the BioBB workflow}
@@ -596,21 +590,15 @@ The same experiment was reproduced using the BioExcel Building Blocks (BioBB)~\c
 \hline
 \textbf{Step} & \textbf{Time (min)} \\
 \hline
-Open \texttt{biobb\_wf\_protein\_md} notebook; provide PDB code 1AKI as input & 5 \\
-Execute \texttt{Pdb}, \texttt{FixSideChain}, and \texttt{Pdb2gmx} blocks; force field pre-selected in notebook & 8 \\
-Execute \texttt{Editconf} block & 2 \\
-Execute \texttt{Solvate} block & 2 \\
-Execute \texttt{Grompp} and \texttt{Genion} blocks for counter-ion addition & 5 \\
-Execute \texttt{Grompp} and \texttt{Mdrun} blocks; verify energy minimization convergence & 10 \\
-Execute \texttt{Grompp} and \texttt{Mdrun} blocks for NVT equilibration & 16 \\
-Execute \texttt{Grompp} and \texttt{Mdrun} blocks for NPT equilibration & 14 \\
-Execute \texttt{Grompp} and \texttt{Mdrun} blocks for production setup & 5 \\
-Manual performance tuning: no BioBB automation; benchmark three MPI/OpenMP/GPU configurations & 70 \\
-Execute \texttt{GMXRms}, \texttt{GMXRmsf}, \texttt{GMXGyrate} analysis blocks; inspect trajectory in NGL viewer & 20 \\
-Manual data packaging and README preparation & 20 \\
-Manual repository upload (no MDRepo integration) & 30 \\
+Launch Binder image and open the notebook with PDB code 1AKI as input & 5 \\
+Execute pre-configured setup cells: topology, solvation, ions, minimization, NVT and NPT equilibration & 14 \\
+Manual performance tuning: benchmark MPI/OpenMP/GPU configurations & 30 \\
+Apply tuned configuration to the production cells and start the run & 3 \\
+Execute analysis and post-processing cells; inspect trajectory in NGL viewer & 15 \\
+Manual data packaging and metadata preparation & 10 \\
+Manual repository upload & 10 \\
 \hline
-\textbf{Total} & \textbf{207} \\
+\textbf{Total} & \textbf{87} \\
 \hline
 \end{tabularx}
 \end{table}
@@ -628,23 +616,23 @@ The same experiment was then reproduced through the MDDash interface, following 
 \hline
 \textbf{Step} & \textbf{Time (min)} \\
 \hline
-Create experiment; fetch 1AKI from the RCSB PDB (Section~\ref{sec:step_new_experiment}) & 2 \\
-Execute pre-configured setup notebook: topology, solvation, ions, minimization, NVT, NPT (Section~\ref{sec:step_setup}) & 25 \\
-Submit automatic tuner sweep; select the best-performing configuration (Section~\ref{sec:step_tune}) & 30 \\
+Create experiment; fetch 1AKI from the RCSB PDB (Section~\ref{sec:step_new_experiment}) & 1 \\
+Execute pre-configured setup notebook: topology, solvation, ions, minimization, NVT, NPT (Section~\ref{sec:step_setup}) & 15 \\
+Submit automatic tuner sweep; select the best-performing configuration (Section~\ref{sec:step_tune}) & 10 \\
 Start production run from the tuned configuration (Section~\ref{sec:step_run}) & 1 \\
 Run integrated MDDB analyses and inspect the trajectory in Mol* (Section~\ref{sec:step_analyze}) & 15 \\
-Publish experiment to MDRepo with auto-extracted metadata (Section~\ref{sec:step_publish}) & 3 \\
+Publish experiment to MDRepo with auto-extracted metadata (Section~\ref{sec:step_publish}) & 1 \\
 \hline
-\textbf{Total} & \textbf{76} \\
+\textbf{Total} & \textbf{43} \\
 \hline
 \end{tabularx}
 \end{table}
 
-The reduction in active time originates from three design decisions discussed in Chapter~\ref{ch:mddash_design}. The pre-configured notebooks replace manual MDP authoring and command lookup with executable cells that are validated and version-controlled. The integrated tuner explores the MPI, OpenMP, and GPU parameter space in parallel rather than serially, and does so without supervision. The analysis tab and the embedded Mol* viewer eliminate the tool-switching and session-loading overhead that dominates the analysis phase of the manual workflow. Additionally, the S3 synchronization described in Section~\ref{sec:s3_sync} continuously uploads simulation outputs to object storage as they are produced, making data packaging and transfer a passive background process rather than an explicit manual step; the publish row in Table~\ref{tab:mddash-timings} reflects only the time to review and confirm the pre-populated MDRepo draft.
+The reduction in active time originates from three design decisions discussed in Chapter~\ref{ch:mddash_design}. The pre-configured notebooks replace manual MDP authoring and command lookup with executable cells that are validated and version-controlled. The integrated tuner explores the MPI, OpenMP, and GPU parameter space in parallel rather than serially, and does so without supervision. The analysis tab and the embedded Mol* viewer eliminate the tool-switching and session-loading overhead that dominates the analysis phase of the manual workflow. Additionally, the S3 synchronization described in Section~\ref{sec:s3_sync} continuously uploads simulation outputs to object storage as they are produced. Data packaging and transfer therefore become a passive background process rather than an explicit manual step. The publish row in Table~\ref{tab:mddash-timings} reflects only the time to review and confirm the pre-populated MDRepo draft.
 
 \subsection{Limitations}
 
-Across the three approaches, the active time required to complete the workflow end-to-end decreased from 271 minutes (manual) to 207 minutes (BioBB) to 76 minutes (MDDash), corresponding to reductions of 24\,\% and 72\,\% relative to the manual baseline, respectively. Several limitations bound the scope of these results.
+Across the three approaches, the active time required to complete the workflow end-to-end decreased from 173 minutes (manual) to 87 minutes (BioBB) to 43 minutes (MDDash), corresponding to reductions of 51\,\% and 75\,\% relative to the manual baseline, respectively. Several limitations bound the scope of these results.
 
 The experiment was conducted by the thesis author, who is also the developer of MDDash. This introduces a systematic bias: the MDDash workflow was executed with complete familiarity with the interface, while the manual and BioBB workflows represent less practiced paths. Additionally, the author's GROMACS experience derives primarily from tool development rather than scientific use. A domain practitioner would complete the manual steps faster, particularly MDP authoring and analysis.
 
