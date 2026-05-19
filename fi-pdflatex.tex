@@ -141,7 +141,7 @@ For running molecular dynamics simulations, several software packages are availa
 
 Among the available engines, GROMACS is one of the most established and widely used, owing to its performance, feature coverage, and broad adoption. AMBER is another common choice, particularly for workflows that depend on its force field ecosystem.
 
-Despite its widespread adoption, GROMACS is primarily designed as a command-line tool, which can make it less accessible to users unfamiliar with terminal-based workflows. This often leads to reliance on custom scripts and manual setup processes, which are difficult to reproduce without complete records of every command and parameter used.
+Despite their widespread adoption, both GROMACS and AMBER are primarily designed as command-line tools, which can make them less accessible to users unfamiliar with terminal-based workflows. This often leads to reliance on custom scripts and manual setup processes, which are difficult to reproduce without complete records of every command and parameter used.
 
 \section{Reproducibility and Data Management}
 \label{sec:reproducibility}
@@ -195,7 +195,7 @@ Taken together, these gaps motivate the design and implementation of an integrat
 \chapter{MDDash Design and Requirements}
 \label{ch:mddash_design}
 
-MDDash was designed as an integrated platform that guides users through the complete simulation lifecycle --- from initial structure preparation through publication to a domain-specific repository --- under a unified interface. Its design directly addresses the four gaps identified in Section~\ref{sec:identified_gaps}.
+MDDash was designed as an integrated platform that guides users through the complete simulation lifecycle from initial structure preparation through publication to a domain-specific repository under a unified interface. Its design directly addresses the four gaps identified in Section~\ref{sec:identified_gaps}.
 
 \section{Platform Choice}
 
@@ -269,7 +269,7 @@ As discussed in Sections~\ref{sec:reproducibility} and~\ref{sec:md_analysis_tool
 
 \begin{itemize}
     \item \textbf{Molecular visualization}: Mol*~\cite{molstar_viewer} is embedded directly in the dashboard, allowing users to inspect simulation structures and trajectories without leaving the platform. This viewer is available not only after the simulation completes but also during an active run. This enables researchers to detect issues early and make informed decisions without waiting for the full simulation to finish.
-    \item \textbf{MDDB workflow analyses}: The full suite of analyses provided by the MDDB Workflow~\cite{mddb_covid} is available for user-triggered execution. Results are displayed inline in the dashboard using visualization components shared with the MDRepo frontend~\cite{mdrepo_ui}, ensuring a consistent presentation of analysis outputs and reducing the overhead of learning a separate tool.
+    \item \textbf{MDDB Workflow analyses}: The full suite of analyses provided by the MDDB Workflow~\cite{mddb_covid} is available for user-triggered execution. Results are displayed inline in the dashboard using visualization components shared with the MDRepo frontend~\cite{mdrepo_ui}, ensuring a consistent presentation of analysis outputs and reducing the overhead of learning a separate tool.
     \item \textbf{Custom analysis notebooks}: For analyses that fall outside the scope of the integrated tools, users can launch a Jupyter notebook environment from within the analyze step. This reuses the same notebook controller introduced in the setup step, giving researchers direct access to the full Python scientific stack and any GROMACS command-line tools. Users can write and execute arbitrary analysis scripts, inspect raw output files, or use the BioBB library, all within the same environment they used to prepare their simulation.
 \end{itemize}
 
@@ -293,7 +293,7 @@ The dashboard exposes only the information relevant to each workflow stage. The 
 
 This chapter describes how the design presented in Chapter~\ref{ch:mddash_design} is realized as a deployable system. The platform is implemented as a Helm release on a Kubernetes cluster, and its components are partitioned across two types of namespace: a single \textit{administrative namespace} that hosts the cluster-wide services, and a per-user namespace that hosts the interactive environment of an individual researcher. Figure~\ref{fig:architecture} shows the resulting topology and the principal communication paths between components.
 
-The administrative namespace hosts the cluster-wide services: JupyterHub, the MDRun API, and the GROMACS Tuner. Each user namespace, provisioned on first login, hosts a per-user interactive environment composed of multiple sidecars around a JupyterLab notebook server. The two tiers do not share storage. An S3 bucket serves as the integration point between them. Authentication is centralized at JupyterHub and enforced at the proxy layer of each user pod before any request reaches an internal service.
+The administrative namespace hosts the cluster-wide services: JupyterHub, the MDRun API, and the GROMACS Tuner. Each user namespace, provisioned on first login, hosts a per-user interactive environment composed of multiple sidecars around a JupyterHub singleuser server. The two tiers do not share storage. An S3 bucket serves as the integration point between them. Authentication is centralized at JupyterHub and enforced at the proxy layer of each user pod before any request reaches an internal service.
 
 \begin{figure}[H]
     \centering
@@ -305,7 +305,7 @@ The administrative namespace hosts the cluster-wide services: JupyterHub, the MD
 \section{Tenant Isolation Strategy}
 \label{sec:tenant_isolation}
 
-MDDash operates within a two-tier namespace structure on a Kubernetes cluster managed by Rancher~\cite{rancher}. The first tier is the \textit{administrative namespace}, which hosts the JupyterHub hub component, the MDRun API (Section~\ref{sec:mdrun_api}), GROMACS Tuner~\cite{gromacs_tuner}, and other shared services deployed as part of the Helm~\cite{helm} release. The second tier consists of \textit{user namespaces}, each dedicated to a single user. A user namespace is named according to the pattern \texttt{\{release\}-user-\{username\}-ns} and is provisioned dynamically upon the first server spawn of that user, as described in Section~\ref{sec:jupyterhub_orchestration}.
+MDDash operates within a two-tier namespace structure on a Kubernetes cluster managed by Rancher~\cite{rancher}. The first tier is the \textit{administrative namespace}, which hosts the JupyterHub hub component, MDRun API (Section~\ref{sec:mdrun_api}) and GROMACS Tuner~\cite{gromacs_tuner} deployed as part of the Helm~\cite{helm} release. The second tier consists of \textit{user namespaces}, each dedicated to a single user. A user namespace is provisioned dynamically upon the first server spawn of that user, as described in Section~\ref{sec:jupyterhub_orchestration}.
 
 The namespace boundary enforces isolation at the Kubernetes resource level: workloads belonging to different users cannot directly access each other's pods, services, or storage volumes. Each user namespace is subject to a \texttt{ResourceQuota} that constrains the aggregate CPU and memory consumption of all pods running within it. Rather than managing these quotas through standalone Kubernetes manifests, MDDash delegates quota enforcement to Rancher through namespace-level annotations. Rancher reconciles these annotations by creating and maintaining the corresponding \texttt{ResourceQuota} object within the namespace, which avoids duplicating quota configuration across both the Helm chart and the provisioning logic. The quota values are configurable through Helm values and are propagated to the provisioning logic at runtime via environment variables.
 
@@ -649,7 +649,7 @@ The reference system also does not expose the file-handling overhead typical of 
 
 The manual timing assumes systematic performance tuning is performed. In practice, researchers frequently skip this step. For such users, MDDash does not reduce active work. Instead, it enables tuning that would not otherwise occur. The benefit is a faster production run rather than reduced setup effort. The throughput improvement was not measured here.
 
-Although the manual timings already reflect LLM-assisted work, LLMs partially overlap with MDDash's accessibility goal by reducing command-lookup and MDP authoring friction. They do not, however, address MDDash's remaining differentiators: automated performance tuning, provenance capture, reproducible notebooks, and integrated publication. The value of MDDash in an LLM-equipped environment therefore lies primarily in workflow integration and reproducibility.
+Although the manual timings already reflect LLM-assisted work, LLMs partially overlap with MDDash's accessibility goal by reducing command-lookup and MDP authoring friction. They do not, however, address MDDash's remaining differentiators: automated performance tuning, provenance capture, reproducible notebooks, and integrated publication. The value of MDDash lies primarily in workflow integration and reproducibility.
 
 Finally, the reported totals exclude the production run itself, which consumes identical compute time across all approaches. The advantage of MDDash therefore grows with simulation length: a sub-optimal parameter configuration translates, over a month-long run, into days of additional wall-clock time, consistent with the observations in Section~\ref{sec:user_testing}.
 
@@ -659,10 +659,10 @@ Finally, the reported totals exclude the production run itself, which consumes i
 This thesis presented MDDash, a virtual research environment that unifies the molecular dynamics simulation workflow within a single web-based platform. The system directly addresses the four limitations identified in Section~\ref{sec:identified_gaps}:
 
 \begin{itemize}
-    \item Integration with the GROMACS Tuner service provides the systematic performance-tuning step absent from the standard workflow.
     \item A structured wizard interface built on top of JupyterHub and JupyterLab lowers the command-line entry barrier imposed by existing simulation engines.
+    \item Integration with the GROMACS Tuner service provides the systematic performance-tuning step absent from the standard workflow.
+    \item Embedding Mol*, the MDDB Workflow analyses and interactive notebook sessions into the dashboard unifies analysis with the surrounding simulation lifecycle.
     \item Direct integration with MDRepo and its domain-specific metadata schema replaces fragmented data stewardship typical of generalist repositories.
-    \item Embedding Mol*, the MDDB workflow analyses and interactive notebook sessions into the dashboard unifies analysis with the surrounding simulation lifecycle.
 \end{itemize}
 
 MDDash is fully operational and is deployed on the e-INFRA~CZ Kubernetes infrastructure across separate production and development environments. Its production instance is publicly accessible at \url{https://mddash.dyn.cloud.e-infra.cz}, and its complete source code is maintained as an open-source project at \url{https://github.com/CERIT-SC/mddash}.
